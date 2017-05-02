@@ -25,9 +25,9 @@ public class ViveCustomController : MonoBehaviour {
     private float lastForwardSpeed = 0f;
 
     //TODO make it change with button pressed
-    Vector3 zeroForward = Vector3.forward;
-
-
+	Vector3 initRight = Vector3.right.Normalize();
+	Vector3 initUp = Vector3.up.Normalize();
+	Vector3 initForward = Vector3.forward.Normalize();
 
 	// Use this for initialization
 	void Start () {
@@ -36,64 +36,25 @@ public class ViveCustomController : MonoBehaviour {
    
 	// Update is called once per frame
 	void Update () {
-
-        print(GetPitch2(controllerRight.transform));
-
-    }
-
-
+		
+        print(GetControllerAngles(controllerRight.transform));
+    
+	}
+		
     // Return pitch value from -180 to 180 based on set up initial pitch
-    float GetPitch(Transform controllerRot)
+	float GetControllerAngles(Transform controllerRot)
     {
-        Vector3 ControllerUp = controllerRot.up;
-        Vector3 ControllerRight = controllerRot.right;
-        Vector3 ControllerForward = controllerRot.forward;
+		Vector3 rightXZ = Vector3.ProjectOnPlane(controllerRot.right, initUp).Normalize();
+		Vector3 upYX = Vector3.ProjectOnPlane(controllerRot.up, initForward).Normalize();
+		Vector3 forwardZY = Vector3.ProjectOnPlane(controllerRot.forward, initRight).Normalize();
 
-        float forwardPointUp = Vector3.Dot(Vector3.Cross(ControllerUp, Vector3.up), ControllerRight);
-        float above = (forwardPointUp > 0) ? 1 : 0;
-        bool isAbove = (above == 1) ? true : false;
+		float pitch = Mathf.Sign (controllerRot.forward.y) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
+		float yaw = Mathf.Sign (controllerRot.right.z) * Mathf.Acos (Vector3.Dot (rightXZ, initRight)) * Mathf.Rad2Deg;
+		float roll = Mathf.Sign (controllerRot.up.x) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
 
-        Vector3 projectedForward = Vector3.ProjectOnPlane(ControllerForward, Vector3.right);
-
-        if (isAbove)
-        {
-            return 180 - Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg;
-        }
-        else
-        {
-            return Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg - 180;
-        }
+		return Vector3(pitch, yaw, roll);
     }
-
-
-    float GetPitch2(Transform controllerRot)
-    {
-        Vector3 ControllerUp = controllerRot.up;
-        Vector3 ControllerRight = controllerRot.right;
-        Vector3 ControllerForward = controllerRot.forward;
-
-        Vector3 projectedForward = Vector3.ProjectOnPlane(ControllerForward, Vector3.right);
-
-        projectedForward.Normalize();
-
-        float cosTheta = Mathf.Acos(Vector3.Dot(projectedForward, zeroForward));
-        float sinTheta = Mathf.Asin(Vector3.Cross(projectedForward, zeroForward).magnitude);
-
-        print("****");
-        print(projectedForward - ControllerForward);
-        print(cosTheta * Mathf.Rad2Deg);
-        print(sinTheta * Mathf.Rad2Deg);
-
-        float angle = Mathf.Atan2(sinTheta, cosTheta) * Mathf.Rad2Deg;
-
-        return angle;
-    }
-
-
-
-
-
-
+		
     //return val between [-1,1] use with rigidbody.velocity probably
     // thresholds the pitch angle to return speed TODO fix XAVIER
     float GetForwardSpeed(float pitch360)
@@ -113,73 +74,4 @@ public class ViveCustomController : MonoBehaviour {
         }
     }
 
-
-
 }
-
-/*
- 
-        Vector3 currentForward = controllerRight.transform.forward;
-
-        Vector3 upYZ = Vector3.Project(controllerRight.transform.up, Vector3.right);
-        Vector3 forwardYZ = Vector3.Project(controllerRight.transform.forward, Vector3.right);
-
-
-        Vector3 normalYZ = Vector3.Cross(upYZ, forwardYZ);
-
-
-        //Vector3.Project();
-     
-        float angleGlobalUp = Vector3.Dot(controllerRight.transform.up, Vector3.up);
-        float forwardPointUp = Vector3.Dot(Vector3.Cross(controllerRight.transform.up, Vector3.up), controllerRight.transform.right);
-        float above = (forwardPointUp > 0) ? 1 : 0;
-        bool isAbove = (above == 1) ? true : false;
-
-        Vector3 projectedForward;
-        projectedForward = Vector3.ProjectOnPlane(currentForward, Vector3.right);
-        float angle;
-                
-        if (isAbove)
-        {
-            angle = 180 - Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg;
-        }
-        else
-        {
-            angle = Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg - 180;
-        }
-
-
-        print(angle);
-
- 
- */
-
-
-
-
-
-
-/*float GetPitch(Quaternion rotation)
-{
-
-    if (rotation.y > 0 && rotation.x < 0) {
-        return 90 - rotation.x - 55;
-    }
-    else if (rotation.y < 0 && rotation.x < 0 )
-    {
-        if (rotation.x < -55 && rotation.x > -90)
-            return rotation.x + 55;
-        else
-            return -55 - rotation.x;
-    }
-    else if (rotation.y < 0 && rotation.x > 0) 
-    {
-        return 55 + rotation.x ;
-    }
-    else
-    {
-        return 9999;
-    }
-
-
-}*/
