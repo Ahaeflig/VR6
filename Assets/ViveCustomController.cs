@@ -27,20 +27,98 @@ public class ViveCustomController : MonoBehaviour {
     //TODO make it change with button pressed
     Vector3 zeroForward = Vector3.forward;
 
+
+
 	// Use this for initialization
 	void Start () {
-
-
-
-            
+ 
     }
-
-
    
 	// Update is called once per frame
 	void Update () {
 
+        print(GetPitch2(controllerRight.transform));
 
+    }
+
+
+    // Return pitch value from -180 to 180 based on set up initial pitch
+    float GetPitch(Transform controllerRot)
+    {
+        Vector3 ControllerUp = controllerRot.up;
+        Vector3 ControllerRight = controllerRot.right;
+        Vector3 ControllerForward = controllerRot.forward;
+
+        float forwardPointUp = Vector3.Dot(Vector3.Cross(ControllerUp, Vector3.up), ControllerRight);
+        float above = (forwardPointUp > 0) ? 1 : 0;
+        bool isAbove = (above == 1) ? true : false;
+
+        Vector3 projectedForward = Vector3.ProjectOnPlane(ControllerForward, Vector3.right);
+
+        if (isAbove)
+        {
+            return 180 - Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg;
+        }
+        else
+        {
+            return Mathf.Acos(Vector3.Dot(projectedForward, zeroForward)) * Mathf.Rad2Deg - 180;
+        }
+    }
+
+
+    float GetPitch2(Transform controllerRot)
+    {
+        Vector3 ControllerUp = controllerRot.up;
+        Vector3 ControllerRight = controllerRot.right;
+        Vector3 ControllerForward = controllerRot.forward;
+
+        Vector3 projectedForward = Vector3.ProjectOnPlane(ControllerForward, Vector3.right);
+
+        projectedForward.Normalize();
+
+        float cosTheta = Mathf.Acos(Vector3.Dot(projectedForward, zeroForward));
+        float sinTheta = Mathf.Asin(Vector3.Cross(projectedForward, zeroForward).magnitude);
+
+        print("****");
+        print(projectedForward - ControllerForward);
+        print(cosTheta * Mathf.Rad2Deg);
+        print(sinTheta * Mathf.Rad2Deg);
+
+        float angle = Mathf.Atan2(sinTheta, cosTheta) * Mathf.Rad2Deg;
+
+        return angle;
+    }
+
+
+
+
+
+
+    //return val between [-1,1] use with rigidbody.velocity probably
+    // thresholds the pitch angle to return speed TODO fix XAVIER
+    float GetForwardSpeed(float pitch360)
+    {
+        //TODO Maybe we can change GetPitchZeroTo360 to return between [180 , -180] directly
+        if (pitch360 > 180)
+            pitch360 = pitch360 - 360;
+        
+        //Now use threshold to get a speed scale
+        if (pitch360 < PITCH_ANGLE_LOWER_THRESHOLD)
+            return lastForwardSpeed;
+        else if (pitch360 > PITCH_ANGLE_UPPER_THRESHOLD)
+            return lastForwardSpeed;
+        else {
+            lastForwardSpeed = (PITCH_ANGLE_ZERO_THRESHOLD - pitch360) * 2 / (PITCH_ANGLE_UPPER_THRESHOLD - PITCH_ANGLE_LOWER_THRESHOLD);
+            return lastForwardSpeed;
+        }
+    }
+
+
+
+}
+
+/*
+ 
         Vector3 currentForward = controllerRight.transform.forward;
 
         Vector3 upYZ = Vector3.Project(controllerRight.transform.up, Vector3.right);
@@ -73,68 +151,8 @@ public class ViveCustomController : MonoBehaviour {
 
         print(angle);
 
-
-    }
-
-
-    // Return pitch value from 0 to 360 where 0 =controller "flat" on the ground and 180 = controller upside down, etc...
-    float GetPitchZeroTo360(Vector3 ControllerUp, Vector3 ControllerRight, Vector3 ControllerForward)
-    {
-        float angleGlobalUp = Vector3.Dot(ControllerUp, Vector3.up);
-        float forwardPointUp = Vector3.Dot(Vector3.Cross(ControllerUp, Vector3.up), ControllerRight);
-        float above = (forwardPointUp > 0) ? 1:0;
-        bool isAbove = (above == 1) ? true : false;
-
-
-        float angleRolled = Vector3.Dot(ControllerRight, Vector3.right);
-        Vector3 asd = Vector3.Cross(ControllerRight, Vector3.up);
-        float isRightCad = asd.x;
-        float yawAngle = Vector3.Dot(ControllerForward, Vector3.forward);
-
-
-        //print(Mathf.Acos(yawAngle) * Mathf.Rad2Deg);
-        
-        //print(diff);
-
-        //bool isRolled = Vector3.Dot();
-
-        //Maybe we can factor this into one statement
-        if (isAbove) {
-            //angleGlobalUp va de 1 à -1 et above = 1
-            //Je veux mapper de 1 -> 0° à -1 -> -180°
-            return (1 - angleGlobalUp) * 90;
-            
-        } else {
-            //angleGlobalUp va de -1 à 1 et above = 0
-            //Je veux mapper de -1 -> 180° à -1 -> 360°
-            return (1 + angleGlobalUp) * 90 + 180 ;
-        }
-    }
-
-    //return val between [-1,1] use with rigidbody.velocity probably
-    // thresholds the pitch angle to return speed TODO fix XAVIER
-    float GetForwardSpeed(float pitch360)
-    {
-        //TODO Maybe we can change GetPitchZeroTo360 to return between [180 , -180] directly
-        if (pitch360 > 180)
-            pitch360 = pitch360 - 360;
-        
-        //Now use threshold to get a speed scale
-        if (pitch360 < PITCH_ANGLE_LOWER_THRESHOLD)
-            return lastForwardSpeed;
-        else if (pitch360 > PITCH_ANGLE_UPPER_THRESHOLD)
-            return lastForwardSpeed;
-        else {
-            lastForwardSpeed = (PITCH_ANGLE_ZERO_THRESHOLD - pitch360) * 2 / (PITCH_ANGLE_UPPER_THRESHOLD - PITCH_ANGLE_LOWER_THRESHOLD);
-            return lastForwardSpeed;
-        }
-    }
-
-
-
-}
-
-
+ 
+ */
 
 
 
