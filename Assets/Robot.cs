@@ -12,6 +12,8 @@ public class Robot : MonoBehaviour {
     [SerializeField]
     float ForwardSpeedMultiplier = 100f;
 
+
+
 	// Use this for initialization
 	void Start () {
 
@@ -26,12 +28,13 @@ public class Robot : MonoBehaviour {
 
     void FixedUpdate()
     {
-        float ForwardSpeed = controllerScript.getControllerFrontSpeed();
+        //float ForwardSpeed = controllerScript.getControllerFrontSpeed();
 
 
-        GetComponent<Rigidbody>().velocity = this.transform.forward * ForwardSpeed * ForwardSpeedMultiplier;
+        //GetComponent<Rigidbody>().velocity = this.transform.forward * ForwardSpeed * ForwardSpeedMultiplier;
 
     }
+
 
 
 }

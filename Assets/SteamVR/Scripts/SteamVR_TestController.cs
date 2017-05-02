@@ -79,6 +79,8 @@ public class SteamVR_TestController : MonoBehaviour
 	{
 		foreach (var index in controllerIndices)
 		{
+
+            PrintControllerStatus(index);
 			var overlay = SteamVR_Overlay.instance;
 			if (overlay && point && pointer)
 			{
