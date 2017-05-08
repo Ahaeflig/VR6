@@ -5,10 +5,21 @@ using UnityEngine;
 public class MiniMap : MonoBehaviour {
 
 	public GameObject plane;
+	public GameObject triggerObstacle;
 
 	// Use this for initialization
 	void Start () {
-
+		/*Transform[] worldChildren = GameObject.Find("World").GetComponentsInChildren<Transform>();
+		foreach (var child in worldChildren) 
+		{
+			Debug.Log (child.GetType());
+		}*/
+		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
+		/*foreach (var obstacle in obstacles)
+		{
+			GameObject obstacleBlip = Instantiate(Tri
+		}*/
+			
 	}
 
 	// Update is called once per frame
