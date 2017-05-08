@@ -6,7 +6,7 @@ public class Blip : MonoBehaviour {
 
 	public GameObject target;
 	public MiniMap map;
-	RectTransform myRectTransform;
+	protected RectTransform myRectTransform;
 
 
 	// Use this for initialization
@@ -14,9 +14,8 @@ public class Blip : MonoBehaviour {
 		myRectTransform = GetComponent<RectTransform> ();
 	}
 
-	void LateUpdate () {
-        Debug.Log(target);
-		var newBlipPosition = map.getMapCoordinateForTarger (target.transform.position);
+	protected void LateUpdate () {
+		var newBlipPosition = map.getMapCoordinateForTarget (target.transform.position);
 		myRectTransform.localPosition = new Vector3 (newBlipPosition.x, newBlipPosition.y, myRectTransform.localPosition.z);
 	}
 

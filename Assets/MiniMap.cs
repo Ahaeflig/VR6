@@ -5,7 +5,8 @@ using UnityEngine;
 public class MiniMap : MonoBehaviour {
 
 	public GameObject plane;
-	public GameObject triggerObstacle;
+	public GameObject obstacleBlip;
+	public GameObject wallBlip;
 
 	// Use this for initialization
 	void Start () {
@@ -17,11 +18,20 @@ public class MiniMap : MonoBehaviour {
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
 		foreach (var obstacle in obstacles)
 		{
-            Blip obstacleBlip = Instantiate(triggerObstacle).GetComponent<Blip>();
-            obstacleBlip.transform.parent = this.transform;
-            obstacleBlip.target = obstacle;
-            obstacleBlip.map = this;
+			Blip blip = Instantiate(obstacleBlip).GetComponent<Blip>();
+			blip.transform.parent = this.transform;
+			blip.target = obstacle;
+			blip.map = this;
         }
+
+		GameObject[] walls = GameObject.FindGameObjectsWithTag ("wall");
+		foreach (var wall in walls)
+		{
+			WallBlip blip = Instantiate(wallBlip).GetComponent<WallBlip>();
+			blip.transform.parent = this.transform;
+			blip.target = wall;
+			blip.map = this;
+		}
 			
 	}
 
@@ -30,7 +40,7 @@ public class MiniMap : MonoBehaviour {
 
 	}
 
-	public Vector3 getMapCoordinateForTarger(Vector3 target)
+	public Vector3 getMapCoordinateForTarget(Vector3 target)
 	{
 
 		var worldWidth = plane.GetComponent<Renderer> ().bounds.size.x;
