@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Blip : MonoBehaviour {
 
-	public Transform target;
+	public GameObject target;
 	public MiniMap map;
 	RectTransform myRectTransform;
 
@@ -15,6 +15,7 @@ public class Blip : MonoBehaviour {
 	}
 
 	void LateUpdate () {
+        Debug.Log(target);
 		var newBlipPosition = map.getMapCoordinateForTarger (target.transform.position);
 		myRectTransform.localPosition = new Vector3 (newBlipPosition.x, newBlipPosition.y, myRectTransform.localPosition.z);
 	}

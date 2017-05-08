@@ -15,10 +15,13 @@ public class MiniMap : MonoBehaviour {
 			Debug.Log (child.GetType());
 		}*/
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
-		/*foreach (var obstacle in obstacles)
+		foreach (var obstacle in obstacles)
 		{
-			GameObject obstacleBlip = Instantiate(Tri
-		}*/
+            Blip obstacleBlip = Instantiate(triggerObstacle).GetComponent<Blip>();
+            obstacleBlip.transform.parent = this.transform;
+            obstacleBlip.target = obstacle;
+            obstacleBlip.map = this;
+        }
 			
 	}
 
