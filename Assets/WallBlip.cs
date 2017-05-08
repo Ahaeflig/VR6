@@ -7,8 +7,8 @@ public class WallBlip : Blip {
 	void LateUpdate()
 	{
 		base.LateUpdate ();
-		Debug.Log (target.GetComponent<Renderer> ().bounds.size.x);
 		var newBlipSize = map.getMapCoordinateForTarget (target.GetComponent<Renderer> ().bounds.size);
-		//myRectTransform.localScale = new Vector3 newBlipSize.x , newBlipSize.y * 0.001f,  target.transform.localScale.z);
+		myRectTransform.GetComponent<RectTransform>().sizeDelta = new Vector2 (newBlipSize.x , newBlipSize.y);
+		myRectTransform.localScale = new Vector3 (1, 1, 1);
 	}
 }

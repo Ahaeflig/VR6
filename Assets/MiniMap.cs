@@ -8,6 +8,8 @@ public class MiniMap : MonoBehaviour {
 	public GameObject obstacleBlip;
 	public GameObject wallBlip;
 
+
+
 	// Use this for initialization
 	void Start () {
 		/*Transform[] worldChildren = GameObject.Find("World").GetComponentsInChildren<Transform>();
@@ -37,7 +39,7 @@ public class MiniMap : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-
+		
 	}
 
 	public Vector3 getMapCoordinateForTarget(Vector3 target)
