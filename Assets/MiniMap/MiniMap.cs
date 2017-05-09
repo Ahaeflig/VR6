@@ -20,8 +20,8 @@ public class MiniMap : MonoBehaviour {
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
 		foreach (var obstacle in obstacles)
 		{
-			Blip blip = Instantiate(obstacleBlip).GetComponent<Blip>();
-			blip.transform.parent = this.transform;
+			ObstacleBlip blip = Instantiate(obstacleBlip).GetComponent<ObstacleBlip>();
+			blip.transform.SetParent (this.transform);
 			blip.target = obstacle;
 			blip.map = this;
         }
@@ -30,7 +30,7 @@ public class MiniMap : MonoBehaviour {
 		foreach (var wall in walls)
 		{
 			WallBlip blip = Instantiate(wallBlip).GetComponent<WallBlip>();
-			blip.transform.parent = this.transform;
+			blip.transform.SetParent (this.transform);
 			blip.target = wall;
 			blip.map = this;
 		}
