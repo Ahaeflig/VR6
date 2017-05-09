@@ -44,11 +44,12 @@ public class MiniMap : MonoBehaviour {
 			Debug.Log ("click!");
 			var mousePosition=Input.mousePosition;
 			//Vector2 convertedGUIPos = GUIUtility.ScreenToGUIPoint(mousePosition);
-
-			var relativePosition = transform.InverseTransformPoint (mousePosition);
+			//Debug.Log (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane)));
+			/*var relativePosition = transform.InverseTransformPoint (mousePosition);
 			var pos = Camera.main.ScreenToWorldPoint (relativePosition);
 
-			Debug.Log (pos);
+			Debug.Log (pos);*/
+			Debug.Log(this.GetComponent<RectTransform> ().InverseTransformPoint (mousePosition));
 		}
 	}
 
