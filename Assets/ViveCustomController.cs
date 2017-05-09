@@ -1,7 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 
 //TODO Turn this class into  a Singleton
 public class ViveCustomController : MonoBehaviour {
@@ -41,29 +40,39 @@ public class ViveCustomController : MonoBehaviour {
 	SteamVR_Controller.Device controllerLeft { get { return SteamVR_Controller.Input ((int)trackedControllerLeft.index); }}
 	SteamVR_Controller.Device controllerRight { get { return SteamVR_Controller.Input ((int)trackedControllerRight.index); }}
 
-    [SerializeField]
-    GameObject cubeTest;
+	[SerializeField]
+	GameObject cubeTest;
 
-    // Not const so that we can change these directly on the inspector
-    [SerializeField]
-    float PITCH_ANGLE_LOWER_THRESHOLD = 0f;
-    [SerializeField]
-    float PITCH_ANGLE_ZERO_THRESHOLD = 65f;    
-    [SerializeField]
-    float PITCH_ANGLE_UPPER_THRESHOLD = 130f;
+	[SerializeField]
+	float PITCH_ANGLE_RANGE = 40f;
+	[SerializeField]
+	float YAW_ANGLE_RANGE = 110f;
+	[SerializeField]
+	float ROLL_ANGLE_RANGE = 150f;
 
-    private float lastForwardSpeed = 0f;
+	[SerializeField]
+	float PITCH_NEUTRAL_TOLERANCE = 4f;
+	[SerializeField]
+	float YAW_NEUTRAL_TOLERANCE = 8f;
+	[SerializeField]
+	float ROLL_NEUTRAL_TOLERANCE = 8f;
 
-    //TODO make it change with button pressed
+	[SerializeField]
+	float FORWARD_SPEED_MULTIPLIER = 1f;
+	[SerializeField]
+	float RIGHT_SPEED_MULTIPLIER = 1f;
+	[SerializeField]
+	float ANGULAR_SPEED_ROTATION_MULTIPLIER = 1f;
+
 	Vector3 initRight = Vector3.right;
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
 
 	// Use this for initialization
 	void Start () {
-	
+
 	}
-   
+
 	// Update is called once per frame
 	void Update () {
 
@@ -73,42 +82,101 @@ public class ViveCustomController : MonoBehaviour {
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
 		}
+		if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
+			initRight = trackedControllerLeft.transform.right;
+			initUp = trackedControllerLeft.transform.up;
+			initForward = trackedControllerLeft.transform.forward;
+		}
 
-		print(GetControllerAngles(trackedControllerRight.transform));
-    
+		Vector3 positionIncrement = new Vector3(0, 0, 0);
+		float rotationIncrement = 0;
+
+		if (controllerLeft.GetHairTriggerDown ()) {
+			// Move robot's left arm
+		} else {
+			// Move robot
+			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
+
+			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+
+			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
+		}
+
+		if (controllerRight.GetHairTriggerDown ()) {
+			// Move robot's right arm
+		} else {
+			// Move robot
+			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
+
+			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+
+			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
+		}
+
+		// Do the average between the vaue of both controllers if they are both used to move the robot (i.e. no hair-trigger pressed)
+		if (!controllerRight.GetHairTriggerDown () && !controllerRight.GetHairTriggerDown ()) {
+			positionIncrement = positionIncrement / 2f;
+			rotationIncrement = rotationIncrement / 2f;
+		}
+
+		cubeTest.transform.position += positionIncrement;
+		cubeTest.transform.Rotate (new Vector3 (0, rotationIncrement, 0), Space.World);
+
 	}
 
-    // Return pitch value from -180 to 180 based on set up initial pitch
-    Vector3 GetControllerAngles(Transform controllerRot)
-    {
-		Vector3 forwardXZ = Vector3.ProjectOnPlane(controllerRot.forward, initUp).normalized;
-		Vector3 upYX = Vector3.ProjectOnPlane(controllerRot.up, initForward).normalized;
+	// Return pitch value from -180 to 180 based on set up initial pitch
+	Vector3 GetControllerAngles(Transform controllerRot)
+	{
 		Vector3 forwardZY = Vector3.ProjectOnPlane(controllerRot.forward, initRight).normalized;
+		float pitch = Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardZY, initForward), initRight)) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
 
-		float pitch = Mathf.Sign (controllerRot.forward.y) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
-		float yaw = Mathf.Sign (controllerRot.forward.x) * Mathf.Acos (Vector3.Dot (forwardXZ, initForward)) * Mathf.Rad2Deg;
-		float roll = Mathf.Sign (controllerRot.up.x) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
+		Vector3 forwardXZ = Vector3.ProjectOnPlane(controllerRot.forward, initUp).normalized;
+		float yaw = Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardXZ, initForward), initUp)) * Mathf.Acos (Vector3.Dot (forwardXZ, initForward)) * Mathf.Rad2Deg;
 
-		return new Vector3(pitch , yaw, roll);
-    }
-		
-    //return val between [-1,1] use with rigidbody.velocity probably
-    // thresholds the pitch angle to return speed TODO fix XAVIER
-    float GetForwardSpeed(float pitch360)
-    {
-        //TODO Maybe we can change GetPitchZeroTo360 to return between [180 , -180] directly
-        if (pitch360 > 180)
-            pitch360 = pitch360 - 360;
-        
-        //Now use threshold to get a speed scale
-        if (pitch360 < PITCH_ANGLE_LOWER_THRESHOLD)
-            return lastForwardSpeed;
-        else if (pitch360 > PITCH_ANGLE_UPPER_THRESHOLD)
-            return lastForwardSpeed;
-        else {
-            lastForwardSpeed = (PITCH_ANGLE_ZERO_THRESHOLD - pitch360) * 2 / (PITCH_ANGLE_UPPER_THRESHOLD - PITCH_ANGLE_LOWER_THRESHOLD);
-            return lastForwardSpeed;
-        }
-    }
+		Vector3 upYX = Vector3.ProjectOnPlane(controllerRot.up, initForward).normalized;
+		float roll = Mathf.Sign (Vector3.Dot(Vector3.Cross(upYX, initUp), initForward)) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
+
+		return new Vector3(pitch, yaw, roll);
+	}
+
+	Vector3 ApplyControllerAnglesClamp(Vector3 unClampedAngles)
+	{
+		return new Vector3(
+			Mathf.Max(Mathf.Min(unClampedAngles.x, PITCH_ANGLE_RANGE/2), -PITCH_ANGLE_RANGE/2),
+			Mathf.Max(Mathf.Min(unClampedAngles.y, YAW_ANGLE_RANGE/YAW_ANGLE_RANGE), -YAW_ANGLE_RANGE/2),
+			Mathf.Max(Mathf.Min(unClampedAngles.z, ROLL_ANGLE_RANGE/2), -ROLL_ANGLE_RANGE/2)
+		);
+	}
+
+	float GetForwardSpeed(float pitchAngle)
+	{
+		if (Mathf.Abs(pitchAngle) >= PITCH_NEUTRAL_TOLERANCE) {
+			return pitchAngle / (PITCH_ANGLE_RANGE/2f);
+		} else {
+			return 0f;
+		}
+	}
+
+	float GetRightSpeed(float yawAngle)
+	{
+		if (Mathf.Abs(yawAngle) >= YAW_NEUTRAL_TOLERANCE) {
+			return yawAngle / (YAW_ANGLE_RANGE/2f);
+		} else {
+			return 0f;
+		}
+	}
+
+	float GetAngularSpeedRotation(float rollAngle)
+	{
+		if (Mathf.Abs(rollAngle) >= ROLL_NEUTRAL_TOLERANCE) {
+			return rollAngle / (ROLL_ANGLE_RANGE/2f);
+		} else {
+			return 0f;
+		}
+	}
 
 }
