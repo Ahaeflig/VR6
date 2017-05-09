@@ -82,17 +82,49 @@ public class ViveCustomController : MonoBehaviour {
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
 		}
+		if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
+			initRight = trackedControllerLeft.transform.right;
+			initUp = trackedControllerLeft.transform.up;
+			initForward = trackedControllerLeft.transform.forward;
+		}
 
-		Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
+		Vector3 positionIncrement = new Vector3(0, 0, 0);
+		float rotationIncrement = 0;
 
-		float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
-		float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
-		float rotationAngle = ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+		if (controllerLeft.GetHairTriggerDown ()) {
+			// Move robot's left arm
+		} else {
+			// Move robot
+			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
 
-		print(new Vector3(forwardSpeed, rightSpeed, rotationAngle));
+			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
 
-		cubeTest.transform.position += forwardSpeed * initForward + rightSpeed * initRight;
-		cubeTest.transform.Rotate (new Vector3 (0, rotationAngle, 0), Space.World);
+			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
+		}
+
+		if (controllerRight.GetHairTriggerDown ()) {
+			// Move robot's right arm
+		} else {
+			// Move robot
+			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
+
+			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+
+			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
+		}
+
+		// Do the average between the vaue of both controllers if they are both used to move the robot (i.e. no hair-trigger pressed)
+		if (!controllerRight.GetHairTriggerDown () && !controllerRight.GetHairTriggerDown ()) {
+			positionIncrement = positionIncrement / 2f;
+			rotationIncrement = rotationIncrement / 2f;
+		}
+
+		cubeTest.transform.position += positionIncrement;
+		cubeTest.transform.Rotate (new Vector3 (0, rotationIncrement, 0), Space.World);
 
 	}
 
