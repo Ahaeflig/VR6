@@ -57,6 +57,13 @@ public class ViveCustomController : MonoBehaviour {
 	[SerializeField]
 	float ROLL_NEUTRAL_TOLERANCE = 8f;
 
+	[SerializeField]
+	float FORWARD_SPEED_MULTIPLIER = 1f;
+	[SerializeField]
+	float RIGHT_SPEED_MULTIPLIER = 1f;
+	[SerializeField]
+	float ANGULAR_SPEED_ROTATION_MULTIPLIER = 1f;
+
 	Vector3 initRight = Vector3.right;
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
@@ -78,11 +85,14 @@ public class ViveCustomController : MonoBehaviour {
 
 		Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
 
-		float forwardSpeed = GetForwardSpeed(movement.x);
-		float rightSpeed = GetRightSpeed(movement.y);
-		float rotationAngle = GetRotationAngle(movement.z);
+		float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+		float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+		float rotationAngle = ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
 
 		print(new Vector3(forwardSpeed, rightSpeed, rotationAngle));
+
+		cubeTest.transform.position += forwardSpeed * initForward + rightSpeed * initRight;
+		cubeTest.transform.Rotate (new Vector3 (0, rotationAngle, 0), Space.World);
 
 	}
 
@@ -128,10 +138,10 @@ public class ViveCustomController : MonoBehaviour {
 		}
 	}
 
-	float GetRotationAngle(float rollAngle)
+	float GetAngularSpeedRotation(float rollAngle)
 	{
 		if (Mathf.Abs(rollAngle) >= ROLL_NEUTRAL_TOLERANCE) {
-			return 180f * rollAngle / (ROLL_ANGLE_RANGE/2f);
+			return rollAngle / (ROLL_ANGLE_RANGE/2f);
 		} else {
 			return 0f;
 		}
