@@ -39,7 +39,17 @@ public class MiniMap : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		
+		if (Input.GetMouseButtonDown(0))
+		{
+			Debug.Log ("click!");
+			var mousePosition=Input.mousePosition;
+			//Vector2 convertedGUIPos = GUIUtility.ScreenToGUIPoint(mousePosition);
+
+			var relativePosition = transform.InverseTransformPoint (mousePosition);
+			var pos = Camera.main.ScreenToWorldPoint (relativePosition);
+
+			Debug.Log (pos);
+		}
 	}
 
 	public Vector3 getMapCoordinateForTarget(Vector3 target)
