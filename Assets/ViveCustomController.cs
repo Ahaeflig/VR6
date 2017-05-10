@@ -10,35 +10,11 @@ public class ViveCustomController : MonoBehaviour {
 	[SerializeField]
 	GameObject controller2;
 
-	SteamVR_TrackedObject trackedControllerLeft {
-		get {
-			int controllerLeftIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Leftmost);
+	SteamVR_TrackedObject trackedControllerLeft;
+	SteamVR_TrackedObject trackedControllerRight;
 
-			if (controllerLeftIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
-				return controller1.GetComponent<SteamVR_TrackedObject> ();
-			} else if (controllerLeftIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
-				return controller2.GetComponent<SteamVR_TrackedObject> ();
-			} else {
-				return null;
-			}
-		}
-	}
-	SteamVR_TrackedObject trackedControllerRight {
-		get {
-			int controllerRightIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Rightmost);
-
-			if (controllerRightIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
-				return controller1.GetComponent<SteamVR_TrackedObject> ();
-			} else if (controllerRightIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
-				return controller2.GetComponent<SteamVR_TrackedObject> ();
-			} else {
-				return null;
-			}
-		}
-	}
-
-	SteamVR_Controller.Device controllerLeft { get { return SteamVR_Controller.Input ((int)trackedControllerLeft.index); }}
-	SteamVR_Controller.Device controllerRight { get { return SteamVR_Controller.Input ((int)trackedControllerRight.index); }}
+	SteamVR_Controller.Device controllerLeft;
+	SteamVR_Controller.Device controllerRight;
 
 	[SerializeField]
 	GameObject cubeTest;
@@ -70,7 +46,38 @@ public class ViveCustomController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		InitControllers ();
+	}
 
+	void InitControllers() {
+
+		// Left controller
+
+		int controllerLeftIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Leftmost);
+
+		if (controllerLeftIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
+			trackedControllerLeft = controller1.GetComponent<SteamVR_TrackedObject> ();
+		} else if (controllerLeftIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
+			trackedControllerLeft = controller2.GetComponent<SteamVR_TrackedObject> ();
+		} else {
+			trackedControllerLeft = null;
+		}
+
+		controllerLeft = SteamVR_Controller.Input ((int)trackedControllerLeft.index);
+
+		// Right controller
+
+		int controllerRightIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Rightmost);
+
+		if (controllerRightIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
+			trackedControllerRight = controller1.GetComponent<SteamVR_TrackedObject> ();
+		} else if (controllerRightIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
+			trackedControllerRight = controller2.GetComponent<SteamVR_TrackedObject> ();
+		} else {
+			trackedControllerRight = null;
+		}
+
+		controllerRight = SteamVR_Controller.Input ((int)trackedControllerRight.index);
 	}
 
 	// Update is called once per frame
@@ -81,18 +88,24 @@ public class ViveCustomController : MonoBehaviour {
 			initRight = trackedControllerRight.transform.right;
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
+
+			InitControllers ();
 		}
 		if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
 			initRight = trackedControllerLeft.transform.right;
 			initUp = trackedControllerLeft.transform.up;
 			initForward = trackedControllerLeft.transform.forward;
+
+			InitControllers ();
 		}
 
 		Vector3 positionIncrement = new Vector3(0, 0, 0);
 		float rotationIncrement = 0;
 
 		if (controllerLeft.GetHairTriggerDown ()) {
-			// Move robot's left arm
+			// TODO Move robot's left arm
+
+
 		} else {
 			// Move robot
 			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
@@ -105,7 +118,9 @@ public class ViveCustomController : MonoBehaviour {
 		}
 
 		if (controllerRight.GetHairTriggerDown ()) {
-			// Move robot's right arm
+			// TODO Move robot's right arm
+
+
 		} else {
 			// Move robot
 			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
