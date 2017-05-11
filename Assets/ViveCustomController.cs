@@ -20,29 +20,35 @@ public class ViveCustomController : MonoBehaviour {
 	GameObject cubeTest;
 
 	[SerializeField]
-	float PITCH_ANGLE_RANGE = 40f;
+	float PITCH_ANGLE_RANGE = 35f;
 	[SerializeField]
-	float YAW_ANGLE_RANGE = 110f;
+	float YAW_ANGLE_RANGE = 50f;
 	[SerializeField]
-	float ROLL_ANGLE_RANGE = 150f;
+	float ROLL_ANGLE_RANGE = 60f;
 
 	[SerializeField]
-	float PITCH_NEUTRAL_TOLERANCE = 4f;
+	float PITCH_NEUTRAL_TOLERANCE = 15f;
 	[SerializeField]
-	float YAW_NEUTRAL_TOLERANCE = 8f;
+	float YAW_NEUTRAL_TOLERANCE = 15f;
 	[SerializeField]
-	float ROLL_NEUTRAL_TOLERANCE = 8f;
+	float ROLL_NEUTRAL_TOLERANCE = 15f;
 
 	[SerializeField]
-	float FORWARD_SPEED_MULTIPLIER = 1f;
+	float FORWARD_SPEED_MULTIPLIER = 4f;
 	[SerializeField]
-	float RIGHT_SPEED_MULTIPLIER = 1f;
+	float RIGHT_SPEED_MULTIPLIER = 4f;
 	[SerializeField]
-	float ANGULAR_SPEED_ROTATION_MULTIPLIER = 1f;
+	float ANGULAR_SPEED_ROTATION_MULTIPLIER = 200f;
 
 	Vector3 initRight = Vector3.right;
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
+
+    Vector3 movementRight = Vector3.right;
+    Vector3 movementUp = Vector3.up;
+    Vector3 movementForward = Vector3.forward;
+
+    bool haveControllersBeenInitByPlayer = false;
 
 	// Use this for initialization
 	void Start () {
@@ -51,95 +57,107 @@ public class ViveCustomController : MonoBehaviour {
 
 	void InitControllers() {
 
-		// Left controller
+        haveControllersBeenInitByPlayer = true;
 
-		int controllerLeftIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Leftmost);
+        // Left controller
 
-		if (controllerLeftIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
+        int controllerLeftIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Leftmost);
+
+		if (controllerLeftIndex == (int) controller1.GetComponent<SteamVR_TrackedObject> ().index) {
 			trackedControllerLeft = controller1.GetComponent<SteamVR_TrackedObject> ();
-		} else if (controllerLeftIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
+		} else if (controllerLeftIndex == (int) controller2.GetComponent<SteamVR_TrackedObject> ().index) {
 			trackedControllerLeft = controller2.GetComponent<SteamVR_TrackedObject> ();
 		} else {
 			trackedControllerLeft = null;
-		}
+            haveControllersBeenInitByPlayer = false;
+        }
 
-		controllerLeft = SteamVR_Controller.Input ((int)trackedControllerLeft.index);
+        controllerLeft = SteamVR_Controller.Input(controllerLeftIndex);
 
-		// Right controller
+        // Right controller
 
-		int controllerRightIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Rightmost);
+        int controllerRightIndex = SteamVR_Controller.GetDeviceIndex (SteamVR_Controller.DeviceRelation.Rightmost);
 
-		if (controllerRightIndex == (int)controller1.GetComponent<SteamVR_TrackedObject> ().index) {
+		if (controllerRightIndex == (int) controller1.GetComponent<SteamVR_TrackedObject> ().index) {
 			trackedControllerRight = controller1.GetComponent<SteamVR_TrackedObject> ();
-		} else if (controllerRightIndex == (int)controller2.GetComponent<SteamVR_TrackedObject> ().index) {
+		} else if (controllerRightIndex == (int) controller2.GetComponent<SteamVR_TrackedObject> ().index) {
 			trackedControllerRight = controller2.GetComponent<SteamVR_TrackedObject> ();
 		} else {
-			trackedControllerRight = null;
-		}
+            trackedControllerRight = null;
+            haveControllersBeenInitByPlayer = false;
+        }
 
-		controllerRight = SteamVR_Controller.Input ((int)trackedControllerRight.index);
+        controllerRight = SteamVR_Controller.Input (controllerRightIndex);
 	}
 
 	// Update is called once per frame
 	void Update () {
 
-		// Reset the initial position of the player if the grip button is clicked
-		if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
-			initRight = trackedControllerRight.transform.right;
+        // Reset the initial position of the player if the grip button is clicked
+            if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
+            InitControllers();
+
+            initRight = trackedControllerRight.transform.right;
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
 
-			InitControllers ();
-		}
-		if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
-			initRight = trackedControllerLeft.transform.right;
+            movementRight = Vector3.ProjectOnPlane(initRight, Vector3.up).normalized;
+            movementForward = Vector3.ProjectOnPlane(initForward, Vector3.up).normalized;
+        }
+        if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
+            InitControllers();
+
+            initRight = trackedControllerLeft.transform.right;
 			initUp = trackedControllerLeft.transform.up;
 			initForward = trackedControllerLeft.transform.forward;
 
-			InitControllers ();
-		}
+            movementRight = Vector3.ProjectOnPlane(initRight, Vector3.up).normalized;
+            movementForward = Vector3.ProjectOnPlane(initForward, Vector3.up).normalized;
+        }
 
-		Vector3 positionIncrement = new Vector3(0, 0, 0);
-		float rotationIncrement = 0;
+        if (haveControllersBeenInitByPlayer) {
+            Vector3 positionIncrement = new Vector3(0, 0, 0);
+            float rotationIncrement = 0;
 
-		if (controllerLeft.GetHairTriggerDown ()) {
-			// TODO Move robot's left arm
-
-
-		} else {
-			// Move robot
-			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
-
-			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
-			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
-			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
-
-			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
-		}
-
-		if (controllerRight.GetHairTriggerDown ()) {
-			// TODO Move robot's right arm
+            if (controllerLeft.GetHairTrigger ()) {
+                // TODO Move robot's left arm
 
 
-		} else {
-			// Move robot
-			Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
+            } else {
+                // Move robot
+                Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
 
-			float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
-			float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
-			rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+                float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+                float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+                rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
 
-			positionIncrement += forwardSpeed * initForward + rightSpeed * initRight;
-		}
+                positionIncrement += forwardSpeed * movementForward + rightSpeed * movementRight;
+            }
 
-		// Do the average between the vaue of both controllers if they are both used to move the robot (i.e. no hair-trigger pressed)
-		if (!controllerRight.GetHairTriggerDown () && !controllerRight.GetHairTriggerDown ()) {
-			positionIncrement = positionIncrement / 2f;
-			rotationIncrement = rotationIncrement / 2f;
-		}
+            if (controllerRight.GetHairTrigger ()) {
+                // TODO Move robot's right arm
 
-		cubeTest.transform.position += positionIncrement;
-		cubeTest.transform.Rotate (new Vector3 (0, rotationIncrement, 0), Space.World);
+
+            } else {
+                // Move robot
+                Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
+
+                float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
+                float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
+                rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
+
+                positionIncrement += forwardSpeed * movementForward + rightSpeed * movementRight;
+            }
+
+            // Do the average between the vaue of both controllers if they are both used to move the robot (i.e. no hair-trigger pressed)
+            if (!controllerRight.GetHairTriggerDown() && !controllerRight.GetHairTriggerDown()) {
+                positionIncrement = positionIncrement / 2f;
+                rotationIncrement = rotationIncrement / 2f;
+            }
+
+            cubeTest.transform.position += positionIncrement;
+            cubeTest.transform.Rotate(new Vector3(0, rotationIncrement, 0), Space.World);
+        }
 
 	}
 
@@ -147,23 +165,23 @@ public class ViveCustomController : MonoBehaviour {
 	Vector3 GetControllerAngles(Transform controllerRot)
 	{
 		Vector3 forwardZY = Vector3.ProjectOnPlane(controllerRot.forward, initRight).normalized;
-		float pitch = Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardZY, initForward), initRight)) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
+		float pitch = - Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardZY, initForward), initRight)) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
 
 		Vector3 forwardXZ = Vector3.ProjectOnPlane(controllerRot.forward, initUp).normalized;
-		float yaw = Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardXZ, initForward), initUp)) * Mathf.Acos (Vector3.Dot (forwardXZ, initForward)) * Mathf.Rad2Deg;
+		float yaw = - Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardXZ, initForward), initUp)) * Mathf.Acos (Vector3.Dot (forwardXZ, initForward)) * Mathf.Rad2Deg;
 
 		Vector3 upYX = Vector3.ProjectOnPlane(controllerRot.up, initForward).normalized;
 		float roll = Mathf.Sign (Vector3.Dot(Vector3.Cross(upYX, initUp), initForward)) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
 
-		return new Vector3(pitch, yaw, roll);
+        return new Vector3(pitch, yaw, roll);
 	}
 
 	Vector3 ApplyControllerAnglesClamp(Vector3 unClampedAngles)
 	{
-		return new Vector3(
-			Mathf.Max(Mathf.Min(unClampedAngles.x, PITCH_ANGLE_RANGE/2), -PITCH_ANGLE_RANGE/2),
-			Mathf.Max(Mathf.Min(unClampedAngles.y, YAW_ANGLE_RANGE/YAW_ANGLE_RANGE), -YAW_ANGLE_RANGE/2),
-			Mathf.Max(Mathf.Min(unClampedAngles.z, ROLL_ANGLE_RANGE/2), -ROLL_ANGLE_RANGE/2)
+        return new Vector3(
+			Mathf.Max(Mathf.Min(unClampedAngles.x, PITCH_ANGLE_RANGE), -PITCH_ANGLE_RANGE),
+			Mathf.Max(Mathf.Min(unClampedAngles.y, YAW_ANGLE_RANGE), -YAW_ANGLE_RANGE),
+			Mathf.Max(Mathf.Min(unClampedAngles.z, ROLL_ANGLE_RANGE), -ROLL_ANGLE_RANGE)
 		);
 	}
 
