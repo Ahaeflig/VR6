@@ -10,7 +10,7 @@ public class Blip : MonoBehaviour {
 
 
 	// Use this for initialization
-	void Start () {
+	protected void Start () {
 		myRectTransform = GetComponent<RectTransform> ();
 	}
 

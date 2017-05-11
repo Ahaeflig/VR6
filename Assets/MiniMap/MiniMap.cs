@@ -20,8 +20,8 @@ public class MiniMap : MonoBehaviour {
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
 		foreach (var obstacle in obstacles)
 		{
-			Blip blip = Instantiate(obstacleBlip).GetComponent<Blip>();
-			blip.transform.parent = this.transform;
+			ObstacleBlip blip = Instantiate(obstacleBlip).GetComponent<ObstacleBlip>();
+			blip.transform.SetParent (this.transform);
 			blip.target = obstacle;
 			blip.map = this;
         }
@@ -30,7 +30,7 @@ public class MiniMap : MonoBehaviour {
 		foreach (var wall in walls)
 		{
 			WallBlip blip = Instantiate(wallBlip).GetComponent<WallBlip>();
-			blip.transform.parent = this.transform;
+			blip.transform.SetParent (this.transform);
 			blip.target = wall;
 			blip.map = this;
 		}
@@ -39,7 +39,18 @@ public class MiniMap : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-		
+		if (Input.GetMouseButtonDown(0))
+		{
+			Debug.Log ("click!");
+			var mousePosition=Input.mousePosition;
+			//Vector2 convertedGUIPos = GUIUtility.ScreenToGUIPoint(mousePosition);
+			//Debug.Log (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane)));
+			/*var relativePosition = transform.InverseTransformPoint (mousePosition);
+			var pos = Camera.main.ScreenToWorldPoint (relativePosition);
+
+			Debug.Log (pos);*/
+			Debug.Log(this.GetComponent<RectTransform> ().InverseTransformPoint (mousePosition));
+		}
 	}
 
 	public Vector3 getMapCoordinateForTarget(Vector3 target)

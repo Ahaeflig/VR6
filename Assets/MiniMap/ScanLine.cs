@@ -21,11 +21,14 @@ public class ScanLine : MonoBehaviour {
 		var scanLineY = this.GetComponent<RectTransform> ().localPosition.y;
 		var miniMapHeight = this.GetComponentInParent<MiniMap> ().GetComponentInParent<RectTransform> ().rect.height / 2.0f;
 
-		Debug.Log (scanLineY  + " " +robotBlip.transform.localPosition.y);
 
-		if (scanLineY >= (robotBlip.transform.localPosition.y - 20) && scanLineY <= (robotBlip.transform.localPosition.y + 20)) {
+		if (scanLineY >= (robotBlip.transform.localPosition.y - 0) && scanLineY <= (robotBlip.transform.localPosition.y + 10)) {
 			var color = robotBlip.transform.GetComponent<Image> ().color;
 			robotBlip.transform.GetComponent<Image> ().color = new Color (color.r, color.g, color.b, 0.9f);
+		} else if (scanLineY > (robotBlip.transform.localPosition.y) && scanLineY < (robotBlip.transform.localPosition.y + 50)) {
+			var color = robotBlip.transform.GetComponent<Image> ().color;
+			var progress = 1f - (Mathf.Abs (scanLineY - robotBlip.transform.localPosition.y)) / 50.0f;
+			robotBlip.transform.GetComponent<Image> ().color = new Color (color.r, color.g, color.b, Mathf.Lerp (0f, 1f, progress));
 		} else {
 			var color = robotBlip.transform.GetComponent<Image> ().color;
 			robotBlip.transform.GetComponent<Image> ().color = new Color (color.r, color.g, color.b, 0.0f);
