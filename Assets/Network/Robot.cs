@@ -10,6 +10,7 @@ public class Robot : MonoBehaviour {
     [SerializeField]
     GameObject controllerViveObject;
 
+
     //private ViveCustomController controllerScript;
     private KeyboardMovement controllerScript;
     private ViveCustomController controllerVive;
@@ -31,11 +32,19 @@ public class Robot : MonoBehaviour {
         controllerVive = controllerViveObject.GetComponent<ViveCustomController>();
         rigid = GetComponent<Rigidbody>();
         rigid.maxAngularVelocity = maxAngularVelocity;
+
+		//this.transform.position = HMD.transform.GetChild (2).transform.position;
+		//this.transform.rotation =  HMD.transform.GetChild (2).transform.rotation;
+
     }
-	
+
 	void Update () {
         //Add Hover animation
 
+		Vector3 speed = controllerVive.getSpeedVector();
+		Vector3 rotate = new Vector3 (0, speed.z * rotationMultiplier, 0) * Time.deltaTime * rotationMultiplier;
+		print (rotate);
+		this.transform.Rotate(rotate);
 
 	}
 
@@ -44,13 +53,14 @@ public class Robot : MonoBehaviour {
     {
         //For movement along XZ plane without inertia
         //rigid.velocity = this.transform.forward * speed.x * speedMultiplier + this.transform.right * speed.y * speedMultiplier;
-        Vector3 speed = controllerVive.getSpeedVector();
-        print(speed.z);
+        //print(speed.z);
 
-
+		//Vector3 speed = controllerVive.getSpeedVector();
         //rigid.AddRelativeForce(new Vector3(speed.y * speedMultiplier, 0f, speed.x * speedMultiplier));
-        rigid.AddRelativeTorque(new Vector3(0, speed.z * rotationMultiplier, 0), ForceMode.Acceleration);
+        //rigid.AddRelativeTorque(new Vector3(0, speed.z * rotationMultiplier, 0), ForceMode.Acceleration);
   
     }
+
+
 
 }
