@@ -16,8 +16,6 @@ public class ViveCustomController : MonoBehaviour {
 	SteamVR_Controller.Device controllerLeft;
 	SteamVR_Controller.Device controllerRight;
 
-	[SerializeField]
-	GameObject cubeTest;
 
 	[SerializeField]
 	float PITCH_ANGLE_RANGE = 35f;
@@ -44,9 +42,9 @@ public class ViveCustomController : MonoBehaviour {
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
 
-    Vector3 movementRight = Vector3.right;
-    Vector3 movementUp = Vector3.up;
-    Vector3 movementForward = Vector3.forward;
+    float forwardSpeed = 0f;
+    float rightSpeed = 0f;
+    float angularSpeed = 0f;
 
     bool haveControllersBeenInitByPlayer = false;
 
@@ -94,15 +92,12 @@ public class ViveCustomController : MonoBehaviour {
 	void Update () {
 
         // Reset the initial position of the player if the grip button is clicked
-            if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
+        if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
             InitControllers();
 
             initRight = trackedControllerRight.transform.right;
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
-
-            movementRight = Vector3.ProjectOnPlane(initRight, Vector3.up).normalized;
-            movementForward = Vector3.ProjectOnPlane(initForward, Vector3.up).normalized;
         }
         if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
             InitControllers();
@@ -110,14 +105,13 @@ public class ViveCustomController : MonoBehaviour {
             initRight = trackedControllerLeft.transform.right;
 			initUp = trackedControllerLeft.transform.up;
 			initForward = trackedControllerLeft.transform.forward;
-
-            movementRight = Vector3.ProjectOnPlane(initRight, Vector3.up).normalized;
-            movementForward = Vector3.ProjectOnPlane(initForward, Vector3.up).normalized;
         }
 
         if (haveControllersBeenInitByPlayer) {
-            Vector3 positionIncrement = new Vector3(0, 0, 0);
-            float rotationIncrement = 0;
+
+            float tempForwardSpeed = 0f;
+            float tempRightSpeed = 0f;
+            float tempAngularSpeed = 0f;
 
             if (controllerLeft.GetHairTrigger ()) {
                 // TODO Move robot's left arm
@@ -127,11 +121,9 @@ public class ViveCustomController : MonoBehaviour {
                 // Move robot
                 Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerLeft.transform));
 
-                float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
-                float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
-                rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
-
-                positionIncrement += forwardSpeed * movementForward + rightSpeed * movementRight;
+                tempForwardSpeed +=  GetForwardSpeed(movement.x);
+                tempRightSpeed += GetRightSpeed(movement.y);
+                tempAngularSpeed += GetAngularSpeedRotation(movement.z);
             }
 
             if (controllerRight.GetHairTrigger ()) {
@@ -142,27 +134,34 @@ public class ViveCustomController : MonoBehaviour {
                 // Move robot
                 Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
 
-                float forwardSpeed = FORWARD_SPEED_MULTIPLIER * Time.deltaTime * GetForwardSpeed(movement.x);
-                float rightSpeed = RIGHT_SPEED_MULTIPLIER * Time.deltaTime * GetRightSpeed(movement.y);
-                rotationIncrement += ANGULAR_SPEED_ROTATION_MULTIPLIER * Time.deltaTime * GetAngularSpeedRotation(movement.z);
-
-                positionIncrement += forwardSpeed * movementForward + rightSpeed * movementRight;
+                tempForwardSpeed += GetForwardSpeed(movement.x);
+                tempRightSpeed += GetRightSpeed(movement.y);
+                tempAngularSpeed += GetAngularSpeedRotation(movement.z);
             }
 
             // Do the average between the vaue of both controllers if they are both used to move the robot (i.e. no hair-trigger pressed)
             if (!controllerRight.GetHairTriggerDown() && !controllerRight.GetHairTriggerDown()) {
-                positionIncrement = positionIncrement / 2f;
-                rotationIncrement = rotationIncrement / 2f;
+                tempForwardSpeed = tempForwardSpeed / 2f;
+                tempRightSpeed = tempRightSpeed / 2f;
+                tempAngularSpeed = tempAngularSpeed / 2f;
             }
 
-            cubeTest.transform.position += positionIncrement;
-            cubeTest.transform.Rotate(new Vector3(0, rotationIncrement, 0), Space.World);
+            forwardSpeed = tempForwardSpeed;
+            rightSpeed = tempRightSpeed;
+            angularSpeed = tempAngularSpeed;
+            
         }
 
 	}
 
-	// Return pitch value from -180 to 180 based on set up initial pitch
-	Vector3 GetControllerAngles(Transform controllerRot)
+
+    public Vector3 getSpeedVector() {
+        return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
+    }
+
+
+    // Return pitch value from -180 to 180 based on set up initial pitch
+    Vector3 GetControllerAngles(Transform controllerRot)
 	{
 		Vector3 forwardZY = Vector3.ProjectOnPlane(controllerRot.forward, initRight).normalized;
 		float pitch = - Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardZY, initForward), initRight)) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
@@ -188,7 +187,7 @@ public class ViveCustomController : MonoBehaviour {
 	float GetForwardSpeed(float pitchAngle)
 	{
 		if (Mathf.Abs(pitchAngle) >= PITCH_NEUTRAL_TOLERANCE) {
-			return pitchAngle / (PITCH_ANGLE_RANGE/2f);
+			return pitchAngle / PITCH_ANGLE_RANGE;
 		} else {
 			return 0f;
 		}
@@ -197,7 +196,7 @@ public class ViveCustomController : MonoBehaviour {
 	float GetRightSpeed(float yawAngle)
 	{
 		if (Mathf.Abs(yawAngle) >= YAW_NEUTRAL_TOLERANCE) {
-			return yawAngle / (YAW_ANGLE_RANGE/2f);
+			return yawAngle / YAW_ANGLE_RANGE;
 		} else {
 			return 0f;
 		}
@@ -206,7 +205,7 @@ public class ViveCustomController : MonoBehaviour {
 	float GetAngularSpeedRotation(float rollAngle)
 	{
 		if (Mathf.Abs(rollAngle) >= ROLL_NEUTRAL_TOLERANCE) {
-			return rollAngle / (ROLL_ANGLE_RANGE/2f);
+			return rollAngle / ROLL_ANGLE_RANGE;
 		} else {
 			return 0f;
 		}
