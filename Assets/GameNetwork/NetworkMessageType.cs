@@ -11,26 +11,28 @@ public class NetworkMessageType {
 	public static short GetRobotPosition = MsgType.Highest + 5;
 	public static short RobotPosition = MsgType.Highest + 6;
 	public static short TriggerWallObstacle = MsgType.Highest + 7;
-};
+}
 
 public class EmptyMessage : MessageBase {
 
 }
 
-public class TerrainMessage : MessageBase
-{
+public class TerrainMessage : MessageBase {
 	public float width;
 	public float height;
 }
 	
-public class WallObstacleMessage : MessageBase
-{
+public class WallObstacleMessage : MessageBase {
 	public Vector3 position;
 	public Vector3 size;
+	public string name;
 }
 
-public class RobotPositionMessage : MessageBase
-{
+public class RobotPositionMessage : MessageBase{
 	public Vector3 position;
+}
+
+public class TriggerWallObstacleMessage : MessageBase{
+	public string name;
 }
 

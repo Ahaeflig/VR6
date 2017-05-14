@@ -5,8 +5,6 @@ using UnityEngine;
 
 public class Player : MonoBehaviour {
 
-	bool isConnectedToServer = false;
-
 	public void SendRobotPosition() {
 		RobotPositionMessage msg = new RobotPositionMessage();
 		msg.position = this.transform.position;

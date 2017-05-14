@@ -7,18 +7,19 @@ public class MiniMap : MonoBehaviour {
 
 	public ClientNetwork clientNetwork;
 	public GameObject obstacles;
-	public GameObject obstacleBlip;
-	public GameObject wallBlip;
+	public GameObject wallObstacleBlip;
 
 	private float terrainWidth;
 	private float terrainHeight;
 
 	public void SetWallObstacles(NetworkMessage netMsg) 
 	{
-		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
-		GameObject blip = Instantiate(obstacleBlip);
 
-		blip.GetComponent<ObstacleBlip>().transform.SetParent (obstacles.transform);
+		Debug.Log ("SetWallObstacles");
+		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
+		GameObject blip = Instantiate(wallObstacleBlip);
+
+		blip.GetComponent<WallObstacleBlip>().transform.SetParent (obstacles.transform);
 
 		var newPosition = getMapCoordinateForTarget (msg.position);
 		blip.GetComponent<RectTransform> ().localPosition = new Vector3 (newPosition.x, newPosition.y, blip.GetComponent<RectTransform> ().localPosition.z);
@@ -27,6 +28,10 @@ public class MiniMap : MonoBehaviour {
 		blip.GetComponent<RectTransform>().sizeDelta = new Vector2 (newBlipSize.x , newBlipSize.y);
 
 		blip.GetComponent<RectTransform>().localScale = new Vector3 (1, 1, 1);
+	
+		blip.transform.name = msg.name;
+
+		blip.GetComponent<WallObstacleBlip>().clientNetwork = clientNetwork;
 
 		clientNetwork.myClient.Send(NetworkMessageType.GetRobotPosition, new EmptyMessage() );
 
