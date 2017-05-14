@@ -1,40 +1,49 @@
 ﻿ using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
 
 public class MiniMap : MonoBehaviour {
 
-	public GameObject plane;
+	public ClientNetwork clientNetwork;
+	public GameObject obstacles;
 	public GameObject obstacleBlip;
 	public GameObject wallBlip;
 
+	private float terrainWidth;
+	private float terrainHeight;
 
+	public void SetWallObstacles(NetworkMessage netMsg) 
+	{
+		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
+		GameObject blip = Instantiate(obstacleBlip);
+
+		blip.GetComponent<ObstacleBlip>().transform.SetParent (obstacles.transform);
+
+		var newPosition = getMapCoordinateForTarget (msg.position);
+		blip.GetComponent<RectTransform> ().localPosition = new Vector3 (newPosition.x, newPosition.y, blip.GetComponent<RectTransform> ().localPosition.z);
+
+		var newBlipSize = getMapCoordinateForTarget (msg.size);
+		blip.GetComponent<RectTransform>().sizeDelta = new Vector2 (newBlipSize.x , newBlipSize.y);
+
+		blip.GetComponent<RectTransform>().localScale = new Vector3 (1, 1, 1);
+
+		clientNetwork.myClient.Send(NetworkMessageType.GetRobotPosition, new EmptyMessage() );
+
+	}
+
+	public void GetTerrain(NetworkMessage netMsg)
+	{
+		TerrainMessage msg = netMsg.ReadMessage<TerrainMessage>();
+		terrainWidth = msg.width;
+		terrainHeight = msg.height;
+		clientNetwork.myClient.Send(NetworkMessageType.GetWallObstacles, new EmptyMessage() );
+	}
 
 	// Use this for initialization
-	void Start () {
-		/*Transform[] worldChildren = GameObject.Find("World").GetComponentsInChildren<Transform>();
-		foreach (var child in worldChildren) 
-		{
-			Debug.Log (child.GetType());
-		}*/
-		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
-		foreach (var obstacle in obstacles)
-		{
-			ObstacleBlip blip = Instantiate(obstacleBlip).GetComponent<ObstacleBlip>();
-			blip.transform.SetParent (this.transform);
-			blip.target = obstacle;
-			blip.map = this;
-        }
-
-		GameObject[] walls = GameObject.FindGameObjectsWithTag ("wall");
-		foreach (var wall in walls)
-		{
-			WallBlip blip = Instantiate(wallBlip).GetComponent<WallBlip>();
-			blip.transform.SetParent (this.transform);
-			blip.target = wall;
-			blip.map = this;
-		}
-			
+	void Start () 
+	{
+		
 	}
 
 	// Update is called once per frame
@@ -43,28 +52,16 @@ public class MiniMap : MonoBehaviour {
 		{
 			Debug.Log ("click!");
 			var mousePosition=Input.mousePosition;
-			//Vector2 convertedGUIPos = GUIUtility.ScreenToGUIPoint(mousePosition);
-			//Debug.Log (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane)));
-			/*var relativePosition = transform.InverseTransformPoint (mousePosition);
-			var pos = Camera.main.ScreenToWorldPoint (relativePosition);
-
-			Debug.Log (pos);*/
 			Debug.Log(this.GetComponent<RectTransform> ().InverseTransformPoint (mousePosition));
 		}
 	}
 
 	public Vector3 getMapCoordinateForTarget(Vector3 target)
 	{
-
-		var worldWidth = plane.GetComponent<Renderer> ().bounds.size.x;
-		var worldHeight = plane.GetComponent<Renderer> ().bounds.size.z;
-
 		var mapWidth = this.GetComponent<RectTransform>().rect.width;
 		var mapHeight = this.GetComponent<RectTransform>().rect.height;
-
-		var blipX =  MapInterval (target.x, -worldWidth/2f, worldWidth/2f, -mapWidth/2f, mapWidth/2f);
-		var blipY =  MapInterval (target.z, -worldHeight/2f, worldHeight/2f, -mapHeight/2f, mapHeight/2f);
-
+		var blipX =  MapInterval (target.x, -terrainWidth/2f, terrainWidth/2f, -mapWidth/2f, mapWidth/2f);
+		var blipY =  MapInterval (target.z, -terrainHeight/2f, terrainHeight/2f, -mapHeight/2f, mapHeight/2f);
 		return new Vector3 (blipX, blipY, this.GetComponent<RectTransform>().localPosition.z);
 	}
 
@@ -73,10 +70,5 @@ public class MiniMap : MonoBehaviour {
 		if (val<=srcMin) return dstMin;
 		return dstMin + (val-srcMin) / (srcMax-srcMin) * (dstMax-dstMin);
 	} 
-
-
-
-
-
 
 }
