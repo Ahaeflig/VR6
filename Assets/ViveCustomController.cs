@@ -6,6 +6,9 @@ using UnityEngine;
 public class ViveCustomController : MonoBehaviour {
 
 	[SerializeField]
+	GameObject robot;
+
+	[SerializeField]
 	GameObject controller1;
 	[SerializeField]
 	GameObject controller2;
@@ -33,6 +36,7 @@ public class ViveCustomController : MonoBehaviour {
 	Vector3 initRight = Vector3.right;
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
+	float lastRobotRotation = 0f;
 
     float forwardSpeed = 0f;
     float rightSpeed = 0f;
@@ -84,21 +88,37 @@ public class ViveCustomController : MonoBehaviour {
 	void Update () {
 
         // Reset the initial position of the player if the grip button is clicked
-        if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
-            InitControllers();
+		if (controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
+			InitControllers ();
 
-            initRight = trackedControllerRight.transform.right;
+			initRight = trackedControllerRight.transform.right;
 			initUp = trackedControllerRight.transform.up;
 			initForward = trackedControllerRight.transform.forward;
-        }
+			lastRobotRotation = robot.transform.eulerAngles.y;
+		}
         if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Grip)) {
             InitControllers();
 
             initRight = trackedControllerLeft.transform.right;
 			initUp = trackedControllerLeft.transform.up;
 			initForward = trackedControllerLeft.transform.forward;
+			lastRobotRotation = robot.transform.eulerAngles.y;
         }
 
+		if (!controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Grip) && !controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
+			// Update the init vectors to reflect the rotation of the robot wrt. the last frame
+
+			float newRobotRotation = robot.transform.eulerAngles.y;
+
+			Quaternion robotRotationBetweenFrames = Quaternion.Euler (0, newRobotRotation - lastRobotRotation, 0);
+
+			initRight = robotRotationBetweenFrames * initRight;
+			initUp = robotRotationBetweenFrames * initUp;
+			initForward = robotRotationBetweenFrames * initForward;
+
+			lastRobotRotation = newRobotRotation;
+		}
+			
         if (haveControllersBeenInitByPlayer) {
 
             float tempForwardSpeed = 0f;
@@ -142,17 +162,14 @@ public class ViveCustomController : MonoBehaviour {
             rightSpeed = tempRightSpeed;
             angularSpeed = tempAngularSpeed;
         }
-
 	}
 
     public Vector3 getSpeedVector() {
         return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
     }
 
-
     // Return pitch value from -180 to 180 based on set up initial pitch
-    Vector3 GetControllerAngles(Transform controllerRot)
-	{
+    Vector3 GetControllerAngles(Transform controllerRot) {
 		Vector3 forwardZY = Vector3.ProjectOnPlane(controllerRot.forward, initRight).normalized;
 		float pitch = - Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardZY, initForward), initRight)) * Mathf.Acos (Vector3.Dot (forwardZY, initForward)) * Mathf.Rad2Deg;
 
@@ -165,8 +182,7 @@ public class ViveCustomController : MonoBehaviour {
         return new Vector3(pitch, yaw, roll);
 	}
 
-	Vector3 ApplyControllerAnglesClamp(Vector3 unClampedAngles)
-	{
+	Vector3 ApplyControllerAnglesClamp(Vector3 unClampedAngles) {
         return new Vector3(
 			Mathf.Max(Mathf.Min(unClampedAngles.x, PITCH_ANGLE_RANGE), -PITCH_ANGLE_RANGE),
 			Mathf.Max(Mathf.Min(unClampedAngles.y, YAW_ANGLE_RANGE), -YAW_ANGLE_RANGE),
@@ -174,8 +190,7 @@ public class ViveCustomController : MonoBehaviour {
 		);
 	}
 
-	float GetForwardSpeed(float pitchAngle)
-	{
+	float GetForwardSpeed(float pitchAngle) {
 		if (Mathf.Abs(pitchAngle) >= PITCH_NEUTRAL_TOLERANCE) {
 			return pitchAngle / PITCH_ANGLE_RANGE;
 		} else {
@@ -183,8 +198,7 @@ public class ViveCustomController : MonoBehaviour {
 		}
 	}
 
-	float GetRightSpeed(float yawAngle)
-	{
+	float GetRightSpeed(float yawAngle) {
 		if (Mathf.Abs(yawAngle) >= YAW_NEUTRAL_TOLERANCE) {
 			return yawAngle / YAW_ANGLE_RANGE;
 		} else {
@@ -192,8 +206,7 @@ public class ViveCustomController : MonoBehaviour {
 		}
 	}
 
-	float GetAngularSpeedRotation(float rollAngle)
-	{
+	float GetAngularSpeedRotation(float rollAngle) {
 		if (Mathf.Abs(rollAngle) >= ROLL_NEUTRAL_TOLERANCE) {
 			return rollAngle / ROLL_ANGLE_RANGE;
 		} else {
