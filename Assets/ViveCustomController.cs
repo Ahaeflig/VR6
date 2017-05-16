@@ -16,7 +16,6 @@ public class ViveCustomController : MonoBehaviour {
 	SteamVR_Controller.Device controllerLeft;
 	SteamVR_Controller.Device controllerRight;
 
-
 	[SerializeField]
 	float PITCH_ANGLE_RANGE = 35f;
 	[SerializeField]
@@ -30,13 +29,6 @@ public class ViveCustomController : MonoBehaviour {
 	float YAW_NEUTRAL_TOLERANCE = 15f;
 	[SerializeField]
 	float ROLL_NEUTRAL_TOLERANCE = 15f;
-
-	[SerializeField]
-	float FORWARD_SPEED_MULTIPLIER = 4f;
-	[SerializeField]
-	float RIGHT_SPEED_MULTIPLIER = 4f;
-	[SerializeField]
-	float ANGULAR_SPEED_ROTATION_MULTIPLIER = 200f;
 
 	Vector3 initRight = Vector3.right;
 	Vector3 initUp = Vector3.up;
@@ -149,11 +141,9 @@ public class ViveCustomController : MonoBehaviour {
             forwardSpeed = tempForwardSpeed;
             rightSpeed = tempRightSpeed;
             angularSpeed = tempAngularSpeed;
-            
         }
 
 	}
-
 
     public Vector3 getSpeedVector() {
         return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
@@ -170,7 +160,7 @@ public class ViveCustomController : MonoBehaviour {
 		float yaw = - Mathf.Sign (Vector3.Dot(Vector3.Cross(forwardXZ, initForward), initUp)) * Mathf.Acos (Vector3.Dot (forwardXZ, initForward)) * Mathf.Rad2Deg;
 
 		Vector3 upYX = Vector3.ProjectOnPlane(controllerRot.up, initForward).normalized;
-		float roll = Mathf.Sign (Vector3.Dot(Vector3.Cross(upYX, initUp), initForward)) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
+		float roll = - Mathf.Sign (Vector3.Dot(Vector3.Cross(upYX, initUp), initForward)) * Mathf.Acos (Vector3.Dot (upYX, initUp)) * Mathf.Rad2Deg;
 
         return new Vector3(pitch, yaw, roll);
 	}
