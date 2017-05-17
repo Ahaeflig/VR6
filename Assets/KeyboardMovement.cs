@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class KeyboardMovement : MonoBehaviour {
 
-    private float forwardSpeed = 0;
-    private float backwardSpeed = 0;
-    private float rightSpeed = 0;
-    private float leftSpeed = 0;
+    private float forwardSpeed = 10;
+    private float backwardSpeed = 10;
+    private float rightSpeed = 10;
+    private float leftSpeed = 10;
 
-    private float rotateRight = 0;
-    private float rotateLeft = 0;
+    private float rotateRight = 10;
+    private float rotateLeft = 10;
 
     // Use this for initialization
     void Start () {
