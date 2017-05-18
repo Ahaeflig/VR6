@@ -17,6 +17,7 @@ public class Player : MonoBehaviour {
 		
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetRobotPosition, HandleGetRobotPositionMessage);
+		GetComponent<Rigidbody>().velocity = new Vector3(5f, 5, 5);
 	}
 
 	void Update () {
@@ -25,5 +26,6 @@ public class Player : MonoBehaviour {
 		transform.Rotate(0, x, 0);
 		transform.Translate(0, 0, z);
 	}
+		
 
 }
