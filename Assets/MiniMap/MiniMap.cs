@@ -9,28 +9,40 @@ public class MiniMap : MonoBehaviour {
 	public Material blackMaterial;
 	public Material whiteMaterial;
 	public GameObject square;
+	public GameObject wallObstacle;
 	public GameObject robotBlip;
+	public Transform parent;
 
 
 	public void SetBlocks(NetworkMessage netMsg) {
 		Debug.Log ("SetBlocks");
 		BlockMessage msg = netMsg.ReadMessage<BlockMessage>();
 		GameObject blip = Instantiate(square);
+		blip.transform.SetParent (parent);
 		blip.transform.position = msg.position;
-		blip.transform.localScale = new Vector3 (1, 1, 1);
-		blip.GetComponent<Square>().originalId = msg.id;
+		blip.transform.localScale = msg.size / 10.0f;
+		blip.transform.name = msg.name;
 		if (msg.materialName == "Black (Instance)") {
 			blip.GetComponent<Renderer> ().material = blackMaterial;
 		} else {
 			blip.GetComponent<Renderer> ().material = whiteMaterial;
 		}
-		clientNetwork.myClient.Send(NetworkMessageType.GetRobotPosition, new EmptyMessage() );
+	}
+
+	public void SetWallObstacles(NetworkMessage netMsg) {
+		Debug.Log ("SetWallObstacles");
+		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
+		GameObject blip = Instantiate(wallObstacle);
+		blip.transform.SetParent (parent);
+		blip.transform.position = msg.position;
+		blip.transform.localScale = msg.size / 10.0f;
+		blip.transform.name = msg.name;
 	}
 
 	public void SetRobotPosition(NetworkMessage netMsg) {
 		Debug.Log ("SetRobotPosition");
 		RobotPositionMessage msg = netMsg.ReadMessage<RobotPositionMessage>();
-		robotBlip.transform.position = new Vector3(msg.position.x, 3.0f, msg.position.z);
+		robotBlip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
 	}
 
 

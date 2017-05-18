@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class ScanLine : MonoBehaviour {
 
-	public Camera camera;
+	public Camera mainCamera;
 	public GameObject robotBlip;
 	public float scanSpeed;
 	public float thresholdMaxDetection;
@@ -19,7 +19,7 @@ public class ScanLine : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (camera.WorldToViewportPoint(transform.position).y > 1 ) {
+		if (mainCamera.WorldToViewportPoint(transform.position).y > 1 ) {
 			transform.position = new Vector3(transform.position.x, transform.position.y, -51f);
 		}
 

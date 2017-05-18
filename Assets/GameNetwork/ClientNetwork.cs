@@ -13,6 +13,7 @@ public class ClientNetwork : MonoBehaviour {
 		myClient = new NetworkClient();
 		myClient.RegisterHandler(MsgType.Connect, OnConnected);
 		myClient.RegisterHandler (NetworkMessageType.Block, miniMap.SetBlocks);
+		myClient.RegisterHandler (NetworkMessageType.WallObstacles, miniMap.SetWallObstacles);
 		myClient.RegisterHandler (NetworkMessageType.RobotPosition, miniMap.SetRobotPosition);
 		myClient.Connect(NetworkInfo.serverIp, NetworkInfo.serverPort);
 	}
@@ -21,6 +22,8 @@ public class ClientNetwork : MonoBehaviour {
 	public void OnConnected(NetworkMessage netMsg) {
 		Debug.Log ("ClientNetwork OnConnected");
 		myClient.Send (NetworkMessageType.GetBlocks, new EmptyMessage());
+	   	myClient.Send(NetworkMessageType.GetWallObstacles, new EmptyMessage());
+		myClient.Send(NetworkMessageType.GetRobotPosition, new EmptyMessage());
 	}
 		
 	// Use this for initialization

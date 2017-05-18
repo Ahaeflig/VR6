@@ -33,7 +33,8 @@ public class TriggerWallObstacleMessage : MessageBase{
 
 public class BlockMessage : MessageBase {
 	public Vector3 position;
-	public int id;
+	public Vector3 size;
+	public string name;
 	public string materialName;
 }
 
