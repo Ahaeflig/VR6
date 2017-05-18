@@ -8,9 +8,10 @@ using UnityEngine.EventSystems;
 public class WallObstacleBlip : MonoBehaviour {
 
 	public ClientNetwork clientNetwork;
+	public bool hasBeenTrigered = false;
 
-	public void Start () 
-	{
+	public void Start () {
+		GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 0.4f);
 	}
 		
 	void Update() {
@@ -29,8 +30,14 @@ public class WallObstacleBlip : MonoBehaviour {
 	}
 
 	public void TriggerObstacle() {
-		TriggerWallObstacleMessage msg = new TriggerWallObstacleMessage();
-		msg.name = this.transform.name;
-		clientNetwork.myClient.Send(NetworkMessageType.TriggerWallObstacle, msg);
+		if (!hasBeenTrigered) {
+			hasBeenTrigered = true;
+			TriggerWallObstacleMessage msg = new TriggerWallObstacleMessage ();
+			msg.name = this.transform.name;
+			clientNetwork.myClient.Send (NetworkMessageType.TriggerWallObstacle, msg);
+			GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 1.0f);
+		}
 	}
+
+
 }

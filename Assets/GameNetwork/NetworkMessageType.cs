@@ -11,6 +11,7 @@ public class NetworkMessageType {
 	public static short TriggerWallObstacle = MsgType.Highest + 7;
 	public static short GetBlocks = MsgType.Highest + 8;
 	public static short Block = MsgType.Highest + 9;
+
 }
 
 public class EmptyMessage : MessageBase {
@@ -37,4 +38,5 @@ public class BlockMessage : MessageBase {
 	public string name;
 	public string materialName;
 }
+
 

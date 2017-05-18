@@ -18,7 +18,6 @@ public class ScanLine : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		Debug.Log (mainCamera.WorldToViewportPoint (transform.position).y);
 		if (mainCamera.WorldToViewportPoint(transform.position).y > 1 ) {
 			Vector3 newPos = mainCamera.ViewportToWorldPoint (new Vector3 (mainCamera.WorldToViewportPoint (transform.position).x, 0, mainCamera.WorldToViewportPoint (transform.position).z));
 			transform.position = newPos;
@@ -38,8 +37,6 @@ public class ScanLine : MonoBehaviour {
 		}
 			
 		transform.Translate (0, 0, Time.deltaTime * scanSpeed);
-
-
 	}
 
 

@@ -8,6 +8,8 @@ public class MiniMap : MonoBehaviour {
 	public ClientNetwork clientNetwork;
 	public Material blackMaterial;
 	public Material whiteMaterial;
+	public Material orangeMaterial;
+	public Material greenMaterial;
 	public GameObject square;
 	public GameObject wallObstacle;
 	public GameObject robotBlip;
@@ -24,8 +26,12 @@ public class MiniMap : MonoBehaviour {
 		blip.transform.name = msg.name;
 		if (msg.materialName == "Black (Instance)") {
 			blip.GetComponent<Renderer> ().material = blackMaterial;
-		} else {
+		} else if (msg.materialName == "White (Instance)") {
 			blip.GetComponent<Renderer> ().material = whiteMaterial;
+		} else if (msg.materialName == "Orange (Instance)") {
+			blip.GetComponent<Renderer> ().material = orangeMaterial;
+		} else if (msg.materialName == "Green (Instance)") {
+			blip.GetComponent<Renderer> ().material = greenMaterial;
 		}
 	}
 
@@ -44,7 +50,7 @@ public class MiniMap : MonoBehaviour {
 		RobotPositionMessage msg = netMsg.ReadMessage<RobotPositionMessage>();
 		robotBlip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
 	}
-
+		
 
 
 	// Use this for initialization

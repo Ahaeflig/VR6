@@ -35,18 +35,13 @@ public class LevelController : MonoBehaviour {
 		}
 	}
 
-	public void TriggerWallObstacle(NetworkMessage netMsg) {
-		TriggerWallObstacleMessage msg = netMsg.ReadMessage<TriggerWallObstacleMessage>();
-		WallObstacle wallObstacle = this.transform.Find (msg.name).GetComponent<WallObstacle>();
-		wallObstacle.Trigger ();
-	}
+
 
 
 	// Use this for initialization
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetBlocks, SendBlocks);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetWallObstacles, SendWallObstacles);
-		NetworkServer.RegisterHandler(NetworkMessageType.TriggerWallObstacle, TriggerWallObstacle);
 	}
 	
 	// Update is called once per frame
