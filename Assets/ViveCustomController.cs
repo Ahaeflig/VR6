@@ -7,6 +7,17 @@ public class ViveCustomController : MonoBehaviour {
 
 	[SerializeField]
 	GameObject robot;
+	private Transform robotsRightShoulder;
+	private Transform robotsLeftShoulder;
+	private Transform robotsRightHand;
+	private Transform robotsLeftHand;
+	private float robotArmLength = 0f;
+
+	[SerializeField]
+	GameObject robotsRightHandTarget;
+
+	[SerializeField]
+	GameObject playersHead;
 
 	[SerializeField]
 	GameObject controller1;
@@ -38,6 +49,9 @@ public class ViveCustomController : MonoBehaviour {
 	Vector3 initForward = Vector3.forward;
 	float lastRobotRotation = 0f;
 
+	Vector3 initControllerRightHandPosition = Vector3.zero;
+	Vector3 initControllerLeftHandPosition = Vector3.zero;
+
     float forwardSpeed = 0f;
     float rightSpeed = 0f;
     float angularSpeed = 0f;
@@ -47,6 +61,11 @@ public class ViveCustomController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		InitControllers ();
+
+		robotsRightShoulder = robot.transform.Find ("R_shoulder");
+		robotsRightHand = robot.transform.Find ("R_hand");
+
+		robotArmLength = (robotsRightHand.position - robotsRightShoulder.position).magnitude;
 	}
 
 	void InitControllers() {
@@ -87,7 +106,8 @@ public class ViveCustomController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        // Reset the initial position of the player if the grip button is clicked
+		// Reset the neutral orientation of the controllers if the grip button is clicked
+		// Reset the position of the hand of the player with arm fully extended in front of him if the thumbstick is clicked
 		if (controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
 			InitControllers ();
 
@@ -103,18 +123,32 @@ public class ViveCustomController : MonoBehaviour {
 			initUp = trackedControllerLeft.transform.up;
 			initForward = trackedControllerLeft.transform.forward;
 			lastRobotRotation = robot.transform.eulerAngles.y;
-        }
+		}
 
-		if (!controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Grip) && !controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Grip)) {
-			// Update the init vectors to reflect the rotation of the robot wrt. the last frame
+		if (controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) {
+			InitControllers ();
+
+			initControllerRightHandPosition = trackedControllerRight.transform.position;
+		}
+		if (controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) {
+			InitControllers ();
+
+			initControllerLeftHandPosition = trackedControllerLeft.transform.position;
+		}
+
+		{
+			// Update the init transforms to reflect the rotation of the robot with respect to the last frame
 
 			float newRobotRotation = robot.transform.eulerAngles.y;
 
-			Quaternion robotRotationBetweenFrames = Quaternion.Euler (0, newRobotRotation - lastRobotRotation, 0);
+			Quaternion robotRotationBetweenFrames = Quaternion.AngleAxis (newRobotRotation - lastRobotRotation, robot.transform.up);
 
 			initRight = robotRotationBetweenFrames * initRight;
 			initUp = robotRotationBetweenFrames * initUp;
 			initForward = robotRotationBetweenFrames * initForward;
+
+			initControllerRightHandPosition = robotRotationBetweenFrames * trackedControllerRight.transform.position;
+			initControllerLeftHandPosition = robotRotationBetweenFrames * trackedControllerLeft.transform.position;
 
 			lastRobotRotation = newRobotRotation;
 		}
@@ -139,9 +173,17 @@ public class ViveCustomController : MonoBehaviour {
             }
 
             if (controllerRight.GetHairTrigger ()) {
-                // TODO Move robot's right arm
+                // Move robot's right arm
 
+				Vector3 controllerRightHandPosition = trackedControllerRight.transform.position;
+				Vector3 playerRightShoulderPosition = playersHead.transform.position;
+				Vector3 armVector = controllerRightHandPosition - playerRightShoulderPosition;
+				Vector3 rightTargetOrientation = armVector.normalized;
+				float lengthRatio = robotArmLength / armVector.magnitude;
 
+				Vector3 newRobotsRightHandTargetPosition = robotsRightShoulder.position + lengthRatio * robotArmLength * rightTargetOrientation;
+
+				robotsRightHandTarget.transform.position.Set (newRobotsRightHandTargetPosition.x, newRobotsRightHandTargetPosition.y, newRobotsRightHandTargetPosition.z);
             } else {
                 // Move robot
                 Vector3 movement = ApplyControllerAnglesClamp(GetControllerAngles(trackedControllerRight.transform));
