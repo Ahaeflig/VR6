@@ -42,6 +42,11 @@ public class LevelController : MonoBehaviour {
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetBlocks, SendBlocks);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetWallObstacles, SendWallObstacles);
+		RenderSettings.fog = true;
+		RenderSettings.fogMode = FogMode.ExponentialSquared;
+		RenderSettings.fogDensity = 0.0009f;
+		RenderSettings.fogColor = Color.grey;
+
 	}
 	
 	// Update is called once per frame
