@@ -34,7 +34,7 @@ public class MiniMap : MonoBehaviour {
 		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
 		GameObject blip = Instantiate(wallObstacle);
 		blip.transform.SetParent (parent);
-		blip.transform.position = msg.position;
+		blip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
 		blip.transform.localScale = msg.size / 10.0f;
 		blip.transform.name = msg.name;
 	}

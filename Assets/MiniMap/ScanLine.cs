@@ -13,14 +13,15 @@ public class ScanLine : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
+		
 	}
 	
 	// Update is called once per frame
 	void Update () {
-
+		Debug.Log (mainCamera.WorldToViewportPoint (transform.position).y);
 		if (mainCamera.WorldToViewportPoint(transform.position).y > 1 ) {
-			transform.position = new Vector3(transform.position.x, transform.position.y, -51f);
+			Vector3 newPos = mainCamera.ViewportToWorldPoint (new Vector3 (mainCamera.WorldToViewportPoint (transform.position).x, 0, mainCamera.WorldToViewportPoint (transform.position).z));
+			transform.position = newPos;
 		}
 
 		var scanLineZ = transform.position.z;

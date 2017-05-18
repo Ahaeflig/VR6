@@ -12,19 +12,25 @@ public class WallObstacleBlip : MonoBehaviour {
 	public void Start () 
 	{
 	}
-
-	public void TriggerObstacle()
-	{
-		TriggerWallObstacleMessage msg = new TriggerWallObstacleMessage();
-		msg.name = this.transform.name;
-		clientNetwork.myClient.Send(NetworkMessageType.TriggerWallObstacle, msg);
-	}
-
-	void Update()
-	{
 		
+	void Update() {
+
 	}
 
 	void LateUpdate () {
+	}
+
+	void OnMouseDown() {
+		RaycastHit hit; 
+		Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); 
+		if (Physics.Raycast (ray, out hit, 100.0f)) {
+			TriggerObstacle ();
+		}
+	}
+
+	public void TriggerObstacle() {
+		TriggerWallObstacleMessage msg = new TriggerWallObstacleMessage();
+		msg.name = this.transform.name;
+		clientNetwork.myClient.Send(NetworkMessageType.TriggerWallObstacle, msg);
 	}
 }
