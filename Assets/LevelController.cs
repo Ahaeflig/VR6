@@ -35,13 +35,19 @@ public class LevelController : MonoBehaviour {
 		}
 	}
 
-
+	public void TriggerWallObstacle(NetworkMessage netMsg) {
+		Debug.Log ("TriggerWallObstacle");
+		TriggerWallObstacleMessage msg = netMsg.ReadMessage<TriggerWallObstacleMessage>();
+		WallObstacle wallObstacle = GameObject.Find (msg.name).GetComponent<WallObstacle>();
+		wallObstacle.Trigger ();
+	}
 
 
 	// Use this for initialization
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetBlocks, SendBlocks);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetWallObstacles, SendWallObstacles);
+		NetworkServer.RegisterHandler(NetworkMessageType.TriggerWallObstacle, TriggerWallObstacle);
 		RenderSettings.fog = true;
 		RenderSettings.fogMode = FogMode.ExponentialSquared;
 		RenderSettings.fogDensity = 0.0009f;
