@@ -18,7 +18,7 @@ public class WaterController : MonoBehaviour {
 		if (Mathf.Abs(totalY) > maxY) {
 			deltaY = deltaY * -1;
 		}
-		transform.Translate(new Vector3(0,deltaY * Time.deltaTime,0));
+		transform.Translate(new Vector3(0, deltaY * Time.deltaTime, 0));
 		totalY = totalY + deltaY;
 	}
 }

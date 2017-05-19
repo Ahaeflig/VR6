@@ -27,7 +27,7 @@ public class WallObstacle : MonoBehaviour {
 	void Update () {
 		if (isBeingAnimated) {
 			if (this.transform.position.y < maxY) {
-				this.transform.Translate (0, 200f * Time.deltaTime, 0);
+				this.transform.Translate (0, 20 * Time.deltaTime, 0);
 			} else {
 				isBeingAnimated = false;
 			}
