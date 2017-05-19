@@ -223,8 +223,8 @@ public class ViveCustomController : MonoBehaviour {
 	}
 
     public Vector3 getSpeedVector() {
-		//return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
-		return Vector3.zero;
+		return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
+		//return Vector3.zero;
     }
 
     // Return pitch value from -180 to 180 based on set up initial pitch

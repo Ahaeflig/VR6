@@ -1,81 +1,95 @@
 ﻿ using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MiniMap : MonoBehaviour {
 
-	public GameObject plane;
-	public GameObject obstacleBlip;
-	public GameObject wallBlip;
+	public ClientNetwork clientNetwork;
+	public Material blackMaterial;
+	public Material whiteMaterial;
+	public Material orangeMaterial;
+	public Material greenMaterial;
+	public GameObject square;
+	public GameObject wallObstacle;
+	public GameObject robotBlip;
+	public Text message;
+	public Transform parent;
+	public bool gameIsRunning = false;
 
+	public void HandleStartMessage(NetworkMessage netMsg) {
+		Debug.Log ("Start");
+		message.text = "";
+		gameIsRunning = true;
+	}
+
+	public void HandleFinishMessage(NetworkMessage netMsg) {
+		Debug.Log ("Finish");
+		message.text = "You've lost!";
+		gameIsRunning = false;
+	}
+
+	public void HandleGameOverMessage(NetworkMessage netMsg) {
+		Debug.Log ("GameOver");
+		message.text = "You've won!";
+		gameIsRunning = false;
+	}
+
+	public void SetBlocks(NetworkMessage netMsg) {
+		Debug.Log ("SetBlocks");
+		BlockMessage msg = netMsg.ReadMessage<BlockMessage>();
+		GameObject blip = Instantiate(square);
+		blip.transform.SetParent (parent);
+		blip.transform.position = msg.position;
+		blip.transform.localScale = msg.size / 10.0f;
+		blip.transform.name = msg.name;
+		if (msg.materialName == "Black (Instance)") {
+			blip.GetComponent<Renderer> ().material = blackMaterial;
+		} else if (msg.materialName == "White (Instance)") {
+			blip.GetComponent<Renderer> ().material = whiteMaterial;
+		} else if (msg.materialName == "Orange (Instance)") {
+			blip.GetComponent<Renderer> ().material = orangeMaterial;
+		} else if (msg.materialName == "Green (Instance)") {
+			blip.GetComponent<Renderer> ().material = greenMaterial;
+		}
+	}
+
+	public void SetWallObstacles(NetworkMessage netMsg) {
+		Debug.Log ("SetWallObstacles");
+		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
+		GameObject blip = Instantiate(wallObstacle) ;
+		blip.transform.SetParent (parent);
+		blip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
+		blip.transform.localScale = msg.size / 10.0f;
+		blip.transform.name = msg.name;
+		blip.GetComponent<WallObstacleBlip>().clientNetwork = clientNetwork;
+		blip.GetComponent<WallObstacleBlip>().miniMap = gameObject;
+		message.text = "waiting for player...";
+	}
+
+	public void SetRobotPosition(NetworkMessage netMsg) {
+		Debug.Log ("SetRobotPosition");
+		RobotPositionMessage msg = netMsg.ReadMessage<RobotPositionMessage>();
+		robotBlip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
+	}
+		
 
 
 	// Use this for initialization
 	void Start () {
-		/*Transform[] worldChildren = GameObject.Find("World").GetComponentsInChildren<Transform>();
-		foreach (var child in worldChildren) 
-		{
-			Debug.Log (child.GetType());
-		}*/
-		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
-		foreach (var obstacle in obstacles)
-		{
-			ObstacleBlip blip = Instantiate(obstacleBlip).GetComponent<ObstacleBlip>();
-			blip.transform.SetParent (this.transform);
-			blip.target = obstacle;
-			blip.map = this;
-        }
-
-		GameObject[] walls = GameObject.FindGameObjectsWithTag ("wall");
-		foreach (var wall in walls)
-		{
-			WallBlip blip = Instantiate(wallBlip).GetComponent<WallBlip>();
-			blip.transform.SetParent (this.transform);
-			blip.target = wall;
-			blip.map = this;
-		}
-			
+		
 	}
 
 	// Update is called once per frame
 	void Update () {
-		if (Input.GetMouseButtonDown(0))
+		/*if (Input.GetMouseButtonDown(0))
 		{
 			Debug.Log ("click!");
 			var mousePosition=Input.mousePosition;
-			//Vector2 convertedGUIPos = GUIUtility.ScreenToGUIPoint(mousePosition);
-			//Debug.Log (Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane)));
-			/*var relativePosition = transform.InverseTransformPoint (mousePosition);
-			var pos = Camera.main.ScreenToWorldPoint (relativePosition);
-
-			Debug.Log (pos);*/
 			Debug.Log(this.GetComponent<RectTransform> ().InverseTransformPoint (mousePosition));
-		}
+		}*/
 	}
-
-	public Vector3 getMapCoordinateForTarget(Vector3 target)
-	{
-
-		var worldWidth = plane.GetComponent<Renderer> ().bounds.size.x;
-		var worldHeight = plane.GetComponent<Renderer> ().bounds.size.z;
-
-		var mapWidth = this.GetComponent<RectTransform>().rect.width;
-		var mapHeight = this.GetComponent<RectTransform>().rect.height;
-
-		var blipX =  MapInterval (target.x, -worldWidth/2f, worldWidth/2f, -mapWidth/2f, mapWidth/2f);
-		var blipY =  MapInterval (target.z, -worldHeight/2f, worldHeight/2f, -mapHeight/2f, mapHeight/2f);
-
-		return new Vector3 (blipX, blipY, this.GetComponent<RectTransform>().localPosition.z);
-	}
-
-	float MapInterval(float val, float srcMin, float srcMax, float dstMin, float dstMax) {
-		if (val>=srcMax) return dstMax;
-		if (val<=srcMin) return dstMin;
-		return dstMin + (val-srcMin) / (srcMax-srcMin) * (dstMax-dstMin);
-	} 
-
-
-
 
 
 
