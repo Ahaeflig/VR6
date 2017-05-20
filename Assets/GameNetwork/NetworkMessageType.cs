@@ -14,6 +14,13 @@ public class NetworkMessageType {
 	public static short Start = MsgType.Highest + 10;
 	public static short GameOver = MsgType.Highest + 11;
 	public static short Finish = MsgType.Highest + 12;
+	public static short GetPlateforms = MsgType.Highest + 13;
+	public static short Plateform = MsgType.Highest + 14;
+	public static short GetWallObstaclesImage = MsgType.Highest + 15;
+	public static short WallObstaclesImage = MsgType.Highest + 16;
+
+
+
 
 }
 
@@ -25,6 +32,7 @@ public class WallObstacleMessage : MessageBase {
 	public Vector3 position;
 	public Vector3 size;
 	public string name;
+	public Quaternion rotation;
 }
 
 public class RobotPositionMessage : MessageBase{
@@ -36,6 +44,13 @@ public class TriggerWallObstacleMessage : MessageBase{
 }
 
 public class BlockMessage : MessageBase {
+	public Vector3 position;
+	public Vector3 size;
+	public string name;
+	public string materialName;
+}
+
+public class PlateformMessage : MessageBase {
 	public Vector3 position;
 	public Vector3 size;
 	public string name;

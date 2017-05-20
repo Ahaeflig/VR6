@@ -23,9 +23,20 @@ public class ScanLine : MonoBehaviour {
 			transform.position = newPos;
 		}
 
+
+	
+
 		var scanLineZ = transform.position.z;
-		var robotBlipZ = robotBlip.transform.localPosition.z;
+		var robotBlipZ = robotBlip.transform.position.z;
 		var deltaZ = Mathf.Abs (scanLineZ - robotBlipZ);
+
+		/*print ("line");
+		print (scanLineZ);
+		print("blip");
+		print (robotBlipZ);
+		print("delta");
+		print (deltaZ);
+		*/
 
 		if (scanLineZ >= robotBlipZ && deltaZ <= thresholdMaxDetection) {
 			var color = robotBlip.GetComponent<MeshRenderer> ().material.color;

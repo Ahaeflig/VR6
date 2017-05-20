@@ -6,6 +6,8 @@ public class LevelController : MonoBehaviour {
 
 	public void SendBlocks(NetworkMessage netMsg)
 	{
+
+
 		Debug.Log ("SendBlocks");
 		GameObject[] blocks = GameObject.FindGameObjectsWithTag ("block");
 		foreach (var block in blocks) {
@@ -18,7 +20,25 @@ public class LevelController : MonoBehaviour {
 			msg.materialName = block.GetComponent<Renderer>().material.name;
 			NetworkServer.SendToAll(NetworkMessageType.Block, msg);
 		}
+
 	}
+
+	public void SendPlateforms(NetworkMessage netMsg)
+	{
+		GameObject[] platforms = GameObject.FindGameObjectsWithTag ("plateform");
+		foreach (var platform in platforms) {
+			string blockNewName = "" + platform.GetInstanceID ();
+			platform.transform.name = blockNewName;
+			BlockMessage msg = new BlockMessage();
+			msg.position = platform.transform.position;
+			msg.size = platform.transform.localScale;
+			msg.name = blockNewName; 
+			msg.materialName = platform.GetComponent<Renderer>().material.name;
+			NetworkServer.SendToAll(NetworkMessageType.Plateform, msg);
+		}
+
+	}
+
 
 	public void SendWallObstacles(NetworkMessage netMsg)
 	{
@@ -31,9 +51,11 @@ public class LevelController : MonoBehaviour {
 			msg.position = obstacle.transform.position;
 			msg.size = obstacle.transform.localScale;
 			msg.name = obstacleNewName; 
+			msg.rotation = obstacle.transform.rotation;
 			NetworkServer.SendToAll(NetworkMessageType.WallObstacles, msg);
 		}
 	}
+
 
 	public void TriggerWallObstacle(NetworkMessage netMsg) {
 		Debug.Log ("TriggerWallObstacle");
@@ -47,7 +69,9 @@ public class LevelController : MonoBehaviour {
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetBlocks, SendBlocks);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetWallObstacles, SendWallObstacles);
+		NetworkServer.RegisterHandler(NetworkMessageType.GetPlateforms, SendPlateforms);
 		NetworkServer.RegisterHandler(NetworkMessageType.TriggerWallObstacle, TriggerWallObstacle);
+
 		RenderSettings.fog = true;
 		RenderSettings.fogMode = FogMode.ExponentialSquared;
 		RenderSettings.fogDensity = 0.0009f;

@@ -51,9 +51,6 @@ public class CountDownTimer : MonoBehaviour {
 				gameObject.GetComponent<TextMesh> ().text = timerInSeconds.ToString();
 			}
 
-	
-
-
 			yield return new WaitForSeconds(1);
 
 		}

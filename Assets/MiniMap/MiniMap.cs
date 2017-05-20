@@ -42,7 +42,26 @@ public class MiniMap : MonoBehaviour {
 		GameObject blip = Instantiate(square);
 		blip.transform.SetParent (parent);
 		blip.transform.position = msg.position;
-		blip.transform.localScale = msg.size / 10.0f;
+		blip.transform.localScale = msg.size;
+		blip.transform.name = msg.name;
+		if (msg.materialName == "Black (Instance)") {
+			blip.GetComponent<Renderer> ().material = blackMaterial;
+		} else if (msg.materialName == "White (Instance)") {
+			blip.GetComponent<Renderer> ().material = whiteMaterial;
+		} else if (msg.materialName == "Orange (Instance)") {
+			blip.GetComponent<Renderer> ().material = orangeMaterial;
+		} else if (msg.materialName == "Green (Instance)") {
+			blip.GetComponent<Renderer> ().material = greenMaterial;
+		}
+	}
+		
+	public void SetPlatforms(NetworkMessage netMsg) {
+		Debug.Log ("SetPlatforms");
+		PlateformMessage msg = netMsg.ReadMessage<PlateformMessage>();
+		GameObject blip = Instantiate(square);
+		blip.transform.SetParent (parent);
+		blip.transform.position = msg.position;
+		blip.transform.localScale = msg.size / 10f;
 		blip.transform.name = msg.name;
 		if (msg.materialName == "Black (Instance)") {
 			blip.GetComponent<Renderer> ().material = blackMaterial;
@@ -55,23 +74,29 @@ public class MiniMap : MonoBehaviour {
 		}
 	}
 
+
+
 	public void SetWallObstacles(NetworkMessage netMsg) {
 		Debug.Log ("SetWallObstacles");
 		WallObstacleMessage msg = netMsg.ReadMessage<WallObstacleMessage>();
 		GameObject blip = Instantiate(wallObstacle) ;
 		blip.transform.SetParent (parent);
-		blip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
+		blip.transform.position = new Vector3(msg.position.x, -23.0f, msg.position.z);
 		blip.transform.localScale = msg.size / 10.0f;
 		blip.transform.name = msg.name;
+		blip.transform.rotation = msg.rotation;
 		blip.GetComponent<WallObstacleBlip>().clientNetwork = clientNetwork;
 		blip.GetComponent<WallObstacleBlip>().miniMap = gameObject;
 		message.text = "waiting for player...";
 	}
 
+
+
+
 	public void SetRobotPosition(NetworkMessage netMsg) {
 		Debug.Log ("SetRobotPosition");
 		RobotPositionMessage msg = netMsg.ReadMessage<RobotPositionMessage>();
-		robotBlip.transform.position = new Vector3(msg.position.x, 10.0f, msg.position.z);
+		robotBlip.transform.position = new Vector3(msg.position.x, -23.0f, msg.position.z);
 	}
 		
 
