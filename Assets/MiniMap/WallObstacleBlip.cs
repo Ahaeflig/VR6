@@ -23,7 +23,7 @@ public class WallObstacleBlip : MonoBehaviour {
 	}
 
 	void OnMouseDown() {
-		if (!miniMap.GetComponent<MiniMap>().gameIsRunning) {
+		if (miniMap.GetComponent<MiniMap>().gameIsRunning) {
 			RaycastHit hit; 
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 			if (Physics.Raycast (ray, out hit, 10000.0f)) {
