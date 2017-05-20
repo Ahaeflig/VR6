@@ -9,9 +9,13 @@ public class ViveCustomController : MonoBehaviour {
 	GameObject robot;
 	[SerializeField]
 	GameObject robotRightHand;
+	[SerializeField]
+	GameObject robotLeftHand;
 
 	[SerializeField]
 	GameObject robotsRightHandTarget;
+	[SerializeField]
+	GameObject robotsLeftHandTarget;
 
 	[SerializeField]
 	GameObject playersHead;
@@ -45,13 +49,19 @@ public class ViveCustomController : MonoBehaviour {
 	Vector3 initUp = Vector3.up;
 	Vector3 initForward = Vector3.forward;
 
+	Vector3 initRobotRightHandPosition;
+	Vector3 initRobotRightShoulderPosition;
 	Vector3 initRobotRightArm;
+	Vector3 initRobotLeftHandPosition;
+	Vector3 initRobotLeftShoulderPosition;
 	Vector3 initRobotLeftArm;
 
 	Vector3 initPlayerRightHandPosition;
 	Vector3 initPlayerRightShoulderPosition;
+	Vector3 initPlayerRightArm;
 	Vector3 initPlayerLeftHandPosition;
 	Vector3 initPlayerLeftShoulderPosition;
+	Vector3 initPlayerLeftArm;
 
 	float lastRobotRotation = 0f;
 	Vector3 lastRobotPosition = Vector3.zero;
@@ -68,9 +78,15 @@ public class ViveCustomController : MonoBehaviour {
 	void Start () {
 		InitControllers ();
 
-		Vector3 initRobotRightHandPosition = robotRightHand.transform.localPosition;
-		Vector3 initRobotRightShoulderPosition = new Vector3 (initRobotRightHandPosition.x, initRobotRightHandPosition.y, 0);
-		initRobotRightArm = robot.transform.TransformPoint(initRobotRightHandPosition) - robot.transform.TransformPoint(initRobotRightShoulderPosition);
+		initRobotRightHandPosition = robotRightHand.transform.position;
+		Vector3 initRobotRightHandLocalPosition = robotRightHand.transform.localPosition;
+		initRobotRightShoulderPosition = robot.transform.TransformPoint(new Vector3 (initRobotRightHandLocalPosition.x, initRobotRightHandLocalPosition.y, 0));
+		initRobotRightArm = initRobotRightHandPosition - initRobotRightShoulderPosition;
+
+		initRobotLeftHandPosition = robotLeftHand.transform.position;
+		Vector3 initRobotLeftHandLocalPosition = robotLeftHand.transform.localPosition;
+		initRobotLeftShoulderPosition = robot.transform.TransformPoint(new Vector3 (initRobotLeftHandLocalPosition.x, initRobotLeftHandLocalPosition.y, 0));
+		initRobotLeftArm = initRobotLeftHandPosition - initRobotLeftShoulderPosition;
 	}
 
 	void InitControllers() {
@@ -131,20 +147,30 @@ public class ViveCustomController : MonoBehaviour {
 		}
 
 		if (movementCalibrated && controllerRight.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) {
-
 			Vector3 initPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
 			Vector3 initPlayerRightShoulderLocalPosition = new Vector3 (initPlayerRightHandLocalPosition.x, initPlayerRightHandLocalPosition.y, 0);
 
 			Transform parentTransform = trackedControllerRight.transform.parent;
 			initPlayerRightHandPosition = parentTransform.TransformPoint (initPlayerRightHandLocalPosition);
 			initPlayerRightShoulderPosition = parentTransform.TransformPoint (initPlayerRightShoulderLocalPosition);
+			initPlayerRightArm = initPlayerRightHandPosition - initPlayerRightShoulderPosition;
 
 			lastRobotPosition = robot.transform.position;
 		
 			rightArmCalibrated = true;
 		}
 		if (movementCalibrated && controllerLeft.GetPressDown(SteamVR_Controller.ButtonMask.Axis0)) {
-			
+			Vector3 initPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
+			Vector3 initPlayerLeftShoulderLocalPosition = new Vector3 (initPlayerLeftHandLocalPosition.x, initPlayerLeftHandLocalPosition.y, 0);
+
+			Transform parentTransform = trackedControllerLeft.transform.parent;
+			initPlayerLeftHandPosition = parentTransform.TransformPoint (initPlayerLeftHandLocalPosition);
+			initPlayerLeftShoulderPosition = parentTransform.TransformPoint (initPlayerLeftShoulderLocalPosition);
+			initPlayerLeftArm = initPlayerLeftHandPosition - initPlayerLeftShoulderPosition;
+
+			lastRobotPosition = robot.transform.position;
+
+			leftArmCalibrated = true;
 		}
 
 		// Update the init vectors to reflect the rotation of the robot since the last frame
@@ -159,7 +185,6 @@ public class ViveCustomController : MonoBehaviour {
 
 			//Vector3 robotTranslationBetweenFrames = newRobotPosition - lastRobotPosition;
 			//initRobotRightArm = initRobotRightArm + robotTranslationBetweenFrames;
-			initRobotRightArm = initRobotRightArm;
 
 			lastRobotRotation = newRobotRotation;
 			lastRobotPosition = newRobotPosition;
@@ -202,13 +227,18 @@ public class ViveCustomController : MonoBehaviour {
 
 		// Move robot's arms
 		if (leftArmCalibrated && controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
-			
+			Vector3 currentPlayerLeftHandPosition = trackedControllerLeft.transform.position;
+			Vector3 currentPlayerLeftArm = currentPlayerLeftHandPosition - initPlayerLeftShoulderPosition;
+
+			Quaternion playerLeftArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerLeftArm, currentPlayerLeftArm);
+			float playerLeftArmRatioBasedOnInit = currentPlayerLeftArm.magnitude / initPlayerLeftArm.magnitude;
+
+			Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (playerLeftArmRotationBasedOnInit * initRobotLeftArm);
+
+			robotsLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
 		}
 		if (rightArmCalibrated && controllerRight.GetPress(SteamVR_Controller.ButtonMask.Trigger)) {
-
 			Vector3 currentPlayerRightHandPosition = trackedControllerRight.transform.position;
-							
-			Vector3 initPlayerRightArm = initPlayerRightHandPosition - initPlayerRightShoulderPosition;
 			Vector3 currentPlayerRightArm = currentPlayerRightHandPosition - initPlayerRightShoulderPosition;
 
 			Quaternion playerRightArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerRightArm, currentPlayerRightArm);
@@ -216,15 +246,13 @@ public class ViveCustomController : MonoBehaviour {
 
 			Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (playerRightArmRotationBasedOnInit * initRobotRightArm);
 
-			robotsRightHandTarget.transform.localPosition = initPlayerRightShoulderPosition + newRobotRightArm;
-
-			Debug.DrawLine(initPlayerRightShoulderPosition, initPlayerRightShoulderPosition + newRobotRightArm, Color.red);
+			robotsRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
 		}
 	}
 
     public Vector3 getSpeedVector() {
-		return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
-		//return Vector3.zero;
+		//return new Vector3(forwardSpeed, rightSpeed, angularSpeed);
+		return Vector3.zero;
     }
 
     // Return pitch value from -180 to 180 based on set up initial pitch
