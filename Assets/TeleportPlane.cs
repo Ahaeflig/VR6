@@ -9,7 +9,7 @@ public class TeleportPlane : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		spawnPos = transform.GetChild(0).position;
-		print (spawnPos);
+		 
 	}
 	
 	// Update is called once per frame
