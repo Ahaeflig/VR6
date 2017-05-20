@@ -18,7 +18,7 @@ public class NetworkMessageType {
 	public static short Plateform = MsgType.Highest + 14;
 	public static short GetWallObstaclesImage = MsgType.Highest + 15;
 	public static short WallObstaclesImage = MsgType.Highest + 16;
-
+	public static short WallObstacleHasFinished = MsgType.Highest + 17;
 
 
 
@@ -40,6 +40,10 @@ public class RobotPositionMessage : MessageBase{
 }
 
 public class TriggerWallObstacleMessage : MessageBase{
+	public string name;
+}
+
+public class WallObstacleHasFinishedMessage : MessageBase{
 	public string name;
 }
 
