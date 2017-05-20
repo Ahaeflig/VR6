@@ -12,7 +12,7 @@ public class WallObstacleBlip : MonoBehaviour {
 	private bool hasBeenTrigered = false;
 
 	public void Start () {
-		GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 0.4f);
+		GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 0.5f);
 	}
 		
 	void Update() {
@@ -30,6 +30,11 @@ public class WallObstacleBlip : MonoBehaviour {
 				TriggerObstacle ();
 			}
 		}
+	}
+
+	public void Done() {
+		hasBeenTrigered = false;
+		GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 0.5f);
 	}
 
 	public void TriggerObstacle() {

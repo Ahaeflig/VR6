@@ -10,7 +10,14 @@ public class WallObstacle : MonoBehaviour {
 	public float minY;
 	public float waitBeforeGoingDown = 3f; // sec
 	private bool isBeingAnimated = false;
-	private bool wallIsGoingUp =true;
+	private WallState wallState = WallState.Down;
+
+	enum WallState {
+		Down,
+		GoingUp,
+		Up,
+		GoingDown
+	}
 
 	// Use this for initialization
 	void Start () {
@@ -20,27 +27,32 @@ public class WallObstacle : MonoBehaviour {
 
 	public void Trigger() {
 		if (!isBeingAnimated) {
-			wallIsGoingUp = true;
 			isBeingAnimated = true;
+			wallState = WallState.GoingUp;
 		}
 	}
 
-	void goDown() {
-		wallIsGoingUp = false;
+
+	IEnumerator WaitBeforeGoingDown() {
+		wallState = WallState.Up;
+		yield return new WaitForSeconds(waitBeforeGoingDown);
+		wallState = WallState.GoingDown;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (isBeingAnimated) {
-			if (wallIsGoingUp && this.transform.position.y < maxY) {
+			if (wallState == WallState.GoingUp && this.transform.position.y < maxY) {
 				this.transform.Translate (0, 20 * Time.deltaTime, 0);
-			} else if (wallIsGoingUp) {
-				InvokeRepeating("goDown", waitBeforeGoingDown, 0.0f);
+			} else if (wallState == WallState.GoingUp) {
+				StartCoroutine (WaitBeforeGoingDown());
 			}
-
-			if (!wallIsGoingUp && this.transform.position.y > minY) {
+				
+			if (wallState == WallState.GoingDown && this.transform.position.y > minY) {
 				this.transform.Translate (0, -20 * Time.deltaTime, 0);
-			} else if (!wallIsGoingUp) {
+			} else if (wallState == WallState.GoingDown) {
+				isBeingAnimated = false;
+				wallState = WallState.Down;
 				WallObstacleHasFinishedMessage msg = new WallObstacleHasFinishedMessage ();
 				msg.name = transform.name;
 				NetworkServer.SendToAll (NetworkMessageType.WallObstacleHasFinished, msg);

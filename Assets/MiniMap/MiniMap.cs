@@ -37,10 +37,9 @@ public class MiniMap : MonoBehaviour {
 	}
 
 	public void HandleWallObstacleHasFinished(NetworkMessage netMsg) {
-		Debug.Log ("HandleWallObstacleHasFinished");
 		WallObstacleHasFinishedMessage msg = netMsg.ReadMessage<WallObstacleHasFinishedMessage> ();
 		WallObstacleBlip wallObstacleBlip = GameObject.Find (msg.name).GetComponent<WallObstacleBlip>();
-		wallObstacleBlip.GetComponent<Renderer> ().material.color = new Color (GetComponent<Renderer> ().material.color.r, GetComponent<Renderer> ().material.color.g, GetComponent<Renderer> ().material.color.b, 0.5f);
+		wallObstacleBlip.Done ();
 	}
 
 	public void SetBlocks(NetworkMessage netMsg) {
