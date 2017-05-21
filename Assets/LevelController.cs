@@ -75,7 +75,7 @@ public class LevelController : MonoBehaviour {
 
 		RenderSettings.fog = true;
 		RenderSettings.fogMode = FogMode.ExponentialSquared;
-		RenderSettings.fogDensity = 0.0009f;
+		RenderSettings.fogDensity = 0.001f;
 		RenderSettings.fogColor = Color.grey;
 
 	}
