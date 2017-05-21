@@ -46,9 +46,10 @@ public class WallObstacle : MonoBehaviour {
 		if (interactive) {
 			if (other.collider.CompareTag ("bullet")) {
 				if (this.transform.position.y > minY) {
-					this.transform.Translate (0, -4 * Time.deltaTime, 0);
-				} else {
+					this.transform.Translate (0, -10f, 0);
 					done ();
+				} else {
+					
 				}
 			}
 

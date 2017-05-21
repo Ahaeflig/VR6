@@ -197,37 +197,36 @@ public class ViveCustomController : MonoBehaviour {
         }
 
 		// ********************** ROBOT ARMS' MOVEMENT ********************** \\
-		//Temporary TODO
-		if (true) {
 
-			if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
-				initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
-			} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
-				Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
-				Vector3 currentPlayerLeftArm = currentPlayerLeftHandLocalPosition - initPlayerLeftShoulderLocalPosition;
 
-				Quaternion playerLeftArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerLeftArm, currentPlayerLeftArm);
-				float playerLeftArmRatioBasedOnInit = currentPlayerLeftArm.magnitude / initPlayerLeftArm.magnitude;
+		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
+			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
+		} else if (controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+			Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
+			Vector3 currentPlayerRightArm = currentPlayerRightHandLocalPosition - initPlayerRightShoulderLocalPosition;
 
-				Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (playerLeftArmRotationBasedOnInit * initRobotLeftArm);
+			Quaternion playerRightArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerRightArm, currentPlayerRightArm);
+			float playerRightArmRatioBasedOnInit = currentPlayerRightArm.magnitude / initPlayerRightArm.magnitude;
 
-				robotLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
-			}
+			Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (playerRightArmRotationBasedOnInit * initRobotRightArm);
 
-			if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
-				initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
-			} else if (controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
-				Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
-				Vector3 currentPlayerRightArm = currentPlayerRightHandLocalPosition - initPlayerRightShoulderLocalPosition;
-
-				Quaternion playerRightArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerRightArm, currentPlayerRightArm);
-				float playerRightArmRatioBasedOnInit = currentPlayerRightArm.magnitude / initPlayerRightArm.magnitude;
-
-				Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (playerRightArmRotationBasedOnInit * initRobotRightArm);
-
-				robotRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
-			}
+			robotRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
 		}
+
+		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
+			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
+		} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+			Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
+			Vector3 currentPlayerLeftArm = currentPlayerLeftHandLocalPosition - initPlayerLeftShoulderLocalPosition;
+
+			Quaternion playerLeftArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerLeftArm, currentPlayerLeftArm);
+			float playerLeftArmRatioBasedOnInit = currentPlayerLeftArm.magnitude / initPlayerLeftArm.magnitude;
+
+			Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (playerLeftArmRotationBasedOnInit * initRobotLeftArm);
+
+			robotLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
+		}
+
 
 
 		/*if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {

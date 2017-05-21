@@ -42,6 +42,7 @@ public class FinishController : MonoBehaviour {
 	void OnCollisionEnter(Collision col) {
 		if (col.collider.CompareTag ("Player")) {
 			Debug.Log (col.gameObject.name);
+			print ("basd");
 			NetworkServer.SendToAll (NetworkMessageType.Finish, new EmptyMessage ());
 		}	
 	}

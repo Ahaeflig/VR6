@@ -19,8 +19,10 @@ public class StartLineController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider col) {
 		Debug.Log (col.gameObject.name);
-		hasGameStarted = true;
-		NetworkServer.SendToAll(NetworkMessageType.Start, new EmptyMessage());
-		gameObject.SetActive (false);
+		if (col.GetComponent<Collider>().CompareTag ("Player")) {
+			hasGameStarted = true;
+			NetworkServer.SendToAll (NetworkMessageType.Start, new EmptyMessage ());
+			gameObject.SetActive (false);
+		}
 	}
 }
