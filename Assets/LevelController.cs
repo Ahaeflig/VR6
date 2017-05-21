@@ -46,7 +46,7 @@ public class LevelController : MonoBehaviour {
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
 		var counter = 0;
 		foreach (var obstacle in obstacles) {
-			string obstacleNewName = "wallObstacle" + ++counter;
+			string obstacleNewName = "wallObstacle" + (++counter);
 			obstacle.transform.name = obstacleNewName;
 			WallObstacleMessage msg = new WallObstacleMessage();
 			msg.position = obstacle.transform.position;
