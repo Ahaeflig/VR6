@@ -30,7 +30,13 @@ public class LevelController : MonoBehaviour {
 			string blockNewName = "" + platform.GetInstanceID ();
 			platform.transform.name = blockNewName;
 			BlockMessage msg = new BlockMessage();
-			msg.position = platform.GetComponent<FinishController>().initPosition;
+
+			if (platform.GetComponent<FinishController> () != null) {
+				msg.position = platform.GetComponent<FinishController> ().initPosition;
+			} else {
+				msg.position = transform.position;
+			}
+
 			msg.size = platform.transform.localScale;
 			msg.name = blockNewName; 
 			msg.materialName = platform.GetComponent<Renderer>().material.name;

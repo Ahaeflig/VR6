@@ -41,13 +41,17 @@ public class WallObstacle : MonoBehaviour {
 		wallState = WallState.GoingDown;
 	}
 
-	void OnTriggerEnter(Collider other) {
-		if (other.CompareTag ("Bullet")) {
-			if (this.transform.position.y > minY) {
-				this.transform.Translate (0, -4 * Time.deltaTime, 0);
-			} else {
-				done ();
+	void OnCollisionEnter(Collision other) {
+
+		if (interactive) {
+			if (other.collider.CompareTag ("Bullet")) {
+				if (this.transform.position.y > minY) {
+					this.transform.Translate (0, -4 * Time.deltaTime, 0);
+				} else {
+					done ();
+				}
 			}
+
 		}
 	}
 	
