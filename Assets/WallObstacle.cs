@@ -44,7 +44,7 @@ public class WallObstacle : MonoBehaviour {
 	void OnCollisionEnter(Collision other) {
 
 		if (interactive) {
-			if (other.collider.CompareTag ("Bullet")) {
+			if (other.collider.CompareTag ("bullet")) {
 				if (this.transform.position.y > minY) {
 					this.transform.Translate (0, -4 * Time.deltaTime, 0);
 				} else {

@@ -12,13 +12,17 @@ public class CountDownTimer : MonoBehaviour {
 	[SerializeField]
 	public float timerInSeconds = 180;
 
+	[SerializeField]
+	GameObject startLine;
+
+
 	private IEnumerator timeCoroutine;
 
 	private bool isGameFinished = false;
 
 	// Use this for initialization
 	void Start () {
-		InvokeRepeating ("UpdateTimer", 0, 1f);
+
 
 		timeCoroutine = UpdateTimer();
 		StartCoroutine(timeCoroutine);
@@ -28,34 +32,41 @@ public class CountDownTimer : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		
+
 	}
 
 
 	private IEnumerator UpdateTimer() {
-		
-		while(!isGameFinished) {
+
+		print (startLine.GetComponent<StartLineController> ().hasGameStarted);
+		while (true) {
+			
+			while (!isGameFinished && startLine.GetComponent<StartLineController> ().hasGameStarted) {
 
 
-			if (timerInSeconds < 30) {
+				if (timerInSeconds < 30) {
 
-				gameObject.GetComponent<TextMesh> ().color = Color.red;
+					gameObject.GetComponent<TextMesh> ().color = Color.red;
+				}
+
+				if (--timerInSeconds < 0) {
+					isGameFinished = true;
+
+					NetworkServer.SendToAll (NetworkMessageType.GameOver, new EmptyMessage ());
+
+
+				} else {
+					gameObject.GetComponent<TextMesh> ().text = timerInSeconds.ToString ();
+				}
+
+				yield return new WaitForSeconds (1);
+
 			}
-
-			if (--timerInSeconds < 0) {
-				isGameFinished = true;
-
-				NetworkServer.SendToAll(NetworkMessageType.GameOver, new EmptyMessage());
-
-
-			} else {
-				gameObject.GetComponent<TextMesh> ().text = timerInSeconds.ToString();
-			}
-
 			yield return new WaitForSeconds(1);
-
-		}
-
+		}	
+			
 	}
+
 
 
 }

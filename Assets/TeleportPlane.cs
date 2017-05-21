@@ -24,7 +24,7 @@ public class TeleportPlane : MonoBehaviour {
 
 		if (other.CompareTag("Player")) {
 			//TODO play fade screen 
-			Debug.Log("aie aie aie");
+
 			Rigidbody rigidbody = other.attachedRigidbody;
 
 			rigidbody.isKinematic = true;

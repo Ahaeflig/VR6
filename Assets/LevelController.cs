@@ -30,7 +30,7 @@ public class LevelController : MonoBehaviour {
 			string blockNewName = "" + platform.GetInstanceID ();
 			platform.transform.name = blockNewName;
 			BlockMessage msg = new BlockMessage();
-			msg.position = transform.position;
+			msg.position = platform.transform.position;
 			msg.size = platform.transform.localScale;
 			msg.name = blockNewName; 
 			msg.materialName = platform.GetComponent<Renderer>().material.name;
@@ -47,11 +47,8 @@ public class LevelController : MonoBehaviour {
 			platform.transform.name = blockNewName;
 			BlockMessage msg = new BlockMessage();
 
-			if (platform.GetComponent<FinishController> () != null) {
-				msg.position = platform.GetComponent<FinishController> ().initPosition;
-			} else {
-				msg.position = transform.position;
-			}
+			msg.position = platform.GetComponent<FinishController> ().initPosition;
+		
 
 			msg.size = platform.transform.localScale;
 			msg.name = blockNewName; 
@@ -92,8 +89,10 @@ public class LevelController : MonoBehaviour {
 	void Start () {
 		NetworkServer.RegisterHandler(NetworkMessageType.GetBlocks, SendBlocks);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetWallObstacles, SendWallObstacles);
+		NetworkServer.RegisterHandler(NetworkMessageType.GetStartPlateforms, SendStartPlateforms);
 		NetworkServer.RegisterHandler(NetworkMessageType.GetPlateforms, SendPlateforms);
 		NetworkServer.RegisterHandler(NetworkMessageType.TriggerWallObstacle, TriggerWallObstacle);
+
 
 		RenderSettings.fog = true;
 		RenderSettings.fogMode = FogMode.ExponentialSquared;

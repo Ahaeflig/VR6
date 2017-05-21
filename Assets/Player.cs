@@ -12,7 +12,7 @@ public class Player : MonoBehaviour {
 	}
 
 	public void HandleGetRobotPositionMessage(NetworkMessage n) {
-		InvokeRepeating("SendRobotPosition", 0.0f, 3.0f);
+		InvokeRepeating("SendRobotPosition", 0.0f, 1.0f);
 	}
 		
 	void Start () {

@@ -5,6 +5,8 @@ using UnityEngine.Networking;
 
 public class StartLineController : MonoBehaviour {
 
+	public bool hasGameStarted = false;
+
 	// Use this for initialization
 	void Start () {
 
@@ -17,7 +19,8 @@ public class StartLineController : MonoBehaviour {
 
 	void OnTriggerEnter(Collider col) {
 		Debug.Log (col.gameObject.name);
-		Destroy (gameObject);
+		hasGameStarted = true;
 		NetworkServer.SendToAll(NetworkMessageType.Start, new EmptyMessage());
+		gameObject.SetActive (false);
 	}
 }
