@@ -80,6 +80,25 @@ public class MiniMap : MonoBehaviour {
 		}
 	}
 
+	public void SetStartPlateforms(NetworkMessage netMsg) {
+		Debug.Log ("SetStartPlateforms");
+		PlateformMessage msg = netMsg.ReadMessage<PlateformMessage>();
+		GameObject blip = Instantiate(square);
+		blip.transform.SetParent (parent);
+		blip.transform.position = msg.position;
+		blip.transform.localScale = msg.size / 10f;
+		blip.transform.name = msg.name;
+		if (msg.materialName == "Black (Instance)") {
+			blip.GetComponent<Renderer> ().material = blackMaterial;
+		} else if (msg.materialName == "White (Instance)") {
+			blip.GetComponent<Renderer> ().material = whiteMaterial;
+		} else if (msg.materialName == "Orange (Instance)") {
+			blip.GetComponent<Renderer> ().material = orangeMaterial;
+		} else if (msg.materialName == "Green (Instance)") {
+			blip.GetComponent<Renderer> ().material = greenMaterial;
+		}
+	}
+
 
 
 	public void SetWallObstacles(NetworkMessage netMsg) {

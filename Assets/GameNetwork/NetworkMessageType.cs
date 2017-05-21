@@ -19,6 +19,8 @@ public class NetworkMessageType {
 	public static short GetWallObstaclesImage = MsgType.Highest + 15;
 	public static short WallObstaclesImage = MsgType.Highest + 16;
 	public static short WallObstacleHasFinished = MsgType.Highest + 17;
+	public static short GetStartPlateforms = MsgType.Highest + 18;
+	public static short StartPlateform = MsgType.Highest + 19;
 
 
 
@@ -61,4 +63,10 @@ public class PlateformMessage : MessageBase {
 	public string materialName;
 }
 
+public class StartPlateformMessage : MessageBase {
+	public Vector3 position;
+	public Vector3 size;
+	public string name;
+	public string materialName;
+}
 

@@ -20,6 +20,7 @@ public class ClientNetwork : MonoBehaviour {
 		myClient.RegisterHandler (NetworkMessageType.Finish, miniMap.HandleFinishMessage);
 		myClient.RegisterHandler (NetworkMessageType.GameOver, miniMap.HandleGameOverMessage);
 		myClient.RegisterHandler (NetworkMessageType.WallObstacleHasFinished, miniMap.HandleWallObstacleHasFinished);
+		myClient.RegisterHandler (NetworkMessageType.StartPlateform, miniMap.SetStartPlateforms);
 
 		myClient.Connect(NetworkInfo.serverIp, NetworkInfo.serverPort);
 	}
@@ -28,6 +29,7 @@ public class ClientNetwork : MonoBehaviour {
 	public void OnConnected(NetworkMessage netMsg) {
 		Debug.Log ("ClientNetwork OnConnected");
 		myClient.Send (NetworkMessageType.GetBlocks, new EmptyMessage());
+		myClient.Send (NetworkMessageType.GetStartPlateforms, new EmptyMessage());
 		myClient.Send (NetworkMessageType.GetPlateforms, new EmptyMessage());
 	   	myClient.Send (NetworkMessageType.GetWallObstacles, new EmptyMessage());
 		myClient.Send (NetworkMessageType.GetRobotPosition, new EmptyMessage());

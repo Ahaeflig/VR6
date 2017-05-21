@@ -23,6 +23,22 @@ public class LevelController : MonoBehaviour {
 
 	}
 
+	public void SendStartPlateforms(NetworkMessage netMsg)
+	{
+		GameObject[] platforms = GameObject.FindGameObjectsWithTag ("startPlateform");
+		foreach (var platform in platforms) {
+			string blockNewName = "" + platform.GetInstanceID ();
+			platform.transform.name = blockNewName;
+			BlockMessage msg = new BlockMessage();
+			msg.position = transform.position;
+			msg.size = platform.transform.localScale;
+			msg.name = blockNewName; 
+			msg.materialName = platform.GetComponent<Renderer>().material.name;
+			NetworkServer.SendToAll(NetworkMessageType.StartPlateform, msg);
+		}
+
+	}
+
 	public void SendPlateforms(NetworkMessage netMsg)
 	{
 		GameObject[] platforms = GameObject.FindGameObjectsWithTag ("plateform");
