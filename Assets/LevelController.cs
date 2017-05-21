@@ -30,7 +30,7 @@ public class LevelController : MonoBehaviour {
 			string blockNewName = "" + platform.GetInstanceID ();
 			platform.transform.name = blockNewName;
 			BlockMessage msg = new BlockMessage();
-			msg.position = platform.transform.position;
+			msg.position = platform.GetComponent<FinishController>().initPosition;
 			msg.size = platform.transform.localScale;
 			msg.name = blockNewName; 
 			msg.materialName = platform.GetComponent<Renderer>().material.name;
@@ -44,8 +44,9 @@ public class LevelController : MonoBehaviour {
 	{
 		Debug.Log ("SendWallObstacles");
 		GameObject[] obstacles = GameObject.FindGameObjectsWithTag ("obstacle");
+		var counter = 0;
 		foreach (var obstacle in obstacles) {
-			string obstacleNewName = "" + obstacle.GetInstanceID ();
+			string obstacleNewName = "wallObstacle" + (++counter);
 			obstacle.transform.name = obstacleNewName;
 			WallObstacleMessage msg = new WallObstacleMessage();
 			msg.position = obstacle.transform.position;
@@ -74,7 +75,7 @@ public class LevelController : MonoBehaviour {
 
 		RenderSettings.fog = true;
 		RenderSettings.fogMode = FogMode.ExponentialSquared;
-		RenderSettings.fogDensity = 0.0009f;
+		RenderSettings.fogDensity = 0.001f;
 		RenderSettings.fogColor = Color.grey;
 
 	}
