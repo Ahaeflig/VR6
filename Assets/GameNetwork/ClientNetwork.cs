@@ -31,7 +31,6 @@ public class ClientNetwork : MonoBehaviour {
 		myClient.Send (NetworkMessageType.GetPlateforms, new EmptyMessage());
 	   	myClient.Send (NetworkMessageType.GetWallObstacles, new EmptyMessage());
 		myClient.Send (NetworkMessageType.GetRobotPosition, new EmptyMessage());
-		myClient.Send (NetworkMessageType.TriggerWallObstacle, new EmptyMessage());
 	}
 		
 	// Use this for initialization

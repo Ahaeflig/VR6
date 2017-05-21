@@ -40,9 +40,10 @@ public class FinishController : MonoBehaviour {
 	}
 		
 	void OnCollisionEnter(Collision col) {
-		Debug.Log (col.gameObject.name);
-		NetworkServer.SendToAll (NetworkMessageType.Finish, new EmptyMessage ());
-	
+		if (col.collider.CompareTag ("Player")) {
+			Debug.Log (col.gameObject.name);
+			NetworkServer.SendToAll (NetworkMessageType.Finish, new EmptyMessage ());
+		}	
 	}
 
 }
