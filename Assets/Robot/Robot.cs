@@ -55,7 +55,7 @@ public class Robot : MonoBehaviour {
         //rigid.velocity = this.transform.forward * speed.x * speedMultiplier + this.transform.right * speed.y * speedMultiplier;
 
 
-		Vector3 speed = controllerVive.getSpeedVector();
+		Vector3 speed = controllerKeyboard.getSpeedVector();
 
 		//print(speed);
 
