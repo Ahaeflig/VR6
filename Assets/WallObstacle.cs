@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class WallObstacle : MonoBehaviour {
 
-
-	public float maxY;
+	public bool interactive = false;
+	public float maxY; 
 	public float minY;
 	public float waitBeforeGoingDown = 3f; // sec
 	private bool isBeingAnimated = false;
@@ -25,6 +25,8 @@ public class WallObstacle : MonoBehaviour {
 	}
 
 
+
+
 	public void Trigger() {
 		if (!isBeingAnimated) {
 			isBeingAnimated = true;
@@ -38,25 +40,48 @@ public class WallObstacle : MonoBehaviour {
 		yield return new WaitForSeconds(waitBeforeGoingDown);
 		wallState = WallState.GoingDown;
 	}
+
+	void OnTriggerEnter(Collider other) {
+		if (other.CompareTag ("Bullet")) {
+			if (this.transform.position.y > minY) {
+				this.transform.Translate (0, -4 * Time.deltaTime, 0);
+			} else {
+				done ();
+			}
+		}
+	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (isBeingAnimated) {
-			if (wallState == WallState.GoingUp && this.transform.position.y < maxY) {
-				this.transform.Translate (0, 20 * Time.deltaTime, 0);
-			} else if (wallState == WallState.GoingUp) {
-				StartCoroutine (WaitBeforeGoingDown());
+			if (!interactive) {
+				if (wallState == WallState.GoingUp && this.transform.position.y < maxY) {
+					this.transform.Translate (0, 20 * Time.deltaTime, 0);
+				} else if (wallState == WallState.GoingUp) {
+					StartCoroutine (WaitBeforeGoingDown ());
+				}
+					
+				if (wallState == WallState.GoingDown && this.transform.position.y > minY) {
+					this.transform.Translate (0, -20 * Time.deltaTime, 0);
+				} else if (wallState == WallState.GoingDown) {
+					done ();
+				} 
+			} else {
+				if (wallState == WallState.GoingUp && this.transform.position.y < maxY) {
+					this.transform.Translate (0, 20 * Time.deltaTime, 0);
+				} else if (wallState == WallState.GoingUp) {
+					wallState = WallState.Up;
+				}
 			}
-				
-			if (wallState == WallState.GoingDown && this.transform.position.y > minY) {
-				this.transform.Translate (0, -20 * Time.deltaTime, 0);
-			} else if (wallState == WallState.GoingDown) {
-				isBeingAnimated = false;
-				wallState = WallState.Down;
-				WallObstacleHasFinishedMessage msg = new WallObstacleHasFinishedMessage ();
-				msg.name = transform.name;
-				NetworkServer.SendToAll (NetworkMessageType.WallObstacleHasFinished, msg);
-			} 
 		}
 	}
+
+	void done() {
+		isBeingAnimated = false;
+		wallState = WallState.Down;
+		WallObstacleHasFinishedMessage msg = new WallObstacleHasFinishedMessage ();
+		msg.name = transform.name;
+		NetworkServer.SendToAll (NetworkMessageType.WallObstacleHasFinished, msg);
+	}
+		
 }
