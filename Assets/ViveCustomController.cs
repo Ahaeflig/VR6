@@ -69,8 +69,6 @@ public class ViveCustomController : MonoBehaviour {
     float angularSpeed = 0f;
 
 	bool movementCalibrated = false;
-	bool rightArmCalibrated = false;
-	bool leftArmCalibrated = false;
 
 	// Use this for initialization
 	void Start () {
@@ -141,29 +139,20 @@ public class ViveCustomController : MonoBehaviour {
 			movementCalibrated = true;
 		}
 
-		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Axis0)) {
-			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
-					
-			rightArmCalibrated = true;
-		}
-		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Axis0)) {
-			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
-
-			leftArmCalibrated = true;
-		}
-
 		// ********************** ROBOT'S ROTATION & TRANSLATION UPDATE (since last frame) ********************** \\
 
-		Vector3 newRobotForward = robot.transform.forward;
-		Quaternion robotRotationBetweenFrames = Quaternion.FromToRotation (lastRobotForward, newRobotForward);
-
 		if (movementCalibrated) {
+			Vector3 newRobotForward = robot.transform.forward;
+			Quaternion robotRotationBetweenFrames = Quaternion.FromToRotation (lastRobotForward, newRobotForward);
+
 			initRight = robotRotationBetweenFrames * initRight;
 			initUp = robotRotationBetweenFrames * initUp;
 			initForward = robotRotationBetweenFrames * initForward;
 
 			initRobotRightArm = computeArm (robotRightHand.transform, ref initRobotRightHandPosition, ref initRobotRightShoulderPosition, Space.World);
 			initRobotLeftArm = computeArm (robotLeftHand.transform, ref initRobotLeftHandPosition, ref initRobotLeftShoulderPosition, Space.World);
+
+			lastRobotForward = newRobotForward;
 		}
 
 		// ********************** ROBOT MOVEMENT ********************** \\
@@ -204,8 +193,9 @@ public class ViveCustomController : MonoBehaviour {
 
 		// ********************** ROBOT ARMS' MOVEMENT ********************** \\
 
-		// Move robot's arms
-		if (leftArmCalibrated && controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
+			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
+		} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
 			Vector3 currentPlayerLeftArm = currentPlayerLeftHandLocalPosition - initPlayerLeftShoulderLocalPosition;
 
@@ -216,7 +206,10 @@ public class ViveCustomController : MonoBehaviour {
 
 			robotLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
 		}
-		if (rightArmCalibrated && controllerRight.GetPress(SteamVR_Controller.ButtonMask.Trigger)) {
+
+		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
+			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
+		} else if (controllerRight.GetPress(SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
 			Vector3 currentPlayerRightArm = currentPlayerRightHandLocalPosition - initPlayerRightShoulderLocalPosition;
 
@@ -227,10 +220,6 @@ public class ViveCustomController : MonoBehaviour {
 
 			robotRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
 		}
-
-		// ********************** ROBOT'S ROTATION & TRANSLATION UPDATE (since last frame) ********************** \\
-
-		lastRobotForward = newRobotForward;
 	}
 
 	Vector3 computeArm (Transform handTransform, ref Vector3 handPosition, ref Vector3 shoulderPosition, Space context) {
