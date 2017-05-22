@@ -201,7 +201,7 @@ public class ViveCustomController : MonoBehaviour {
 
 		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
-		} else if (controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+		} else if (movementCalibrated && controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
 			canonRight.GetComponentsInChildren<CanonController> ()[0].Fire ();
 		} else if (controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
@@ -220,11 +220,12 @@ public class ViveCustomController : MonoBehaviour {
 			Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (q_y * q_z * q_x * initRobotRightArm);
 
 			robotRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
+			robotRightHandTarget.transform.rotation = Quaternion.LookRotation (newRobotRightArm);
 		}
 
 		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
-		} else if (controllerLeft.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+		} else if (movementCalibrated && controllerLeft.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
 			canonLeft.GetComponentsInChildren<CanonController> ()[0].Fire ();
 		} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
@@ -242,6 +243,10 @@ public class ViveCustomController : MonoBehaviour {
 
 			Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (q_y * q_z * q_x * initRobotLeftArm);
 			robotLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
+
+
+			robotLeftHandTarget.transform.rotation = Quaternion.LookRotation (newRobotLeftArm);
+				
 		}
 
 		/* FIRE WHEN RELEASING Trigger temporary*/

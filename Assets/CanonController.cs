@@ -33,9 +33,9 @@ public class CanonController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
-		transform.position = Vector3.Lerp (this.transform.position, newPos.transform.position, 1);
-		transform.rotation = newPos.transform.rotation;
+
+		this.transform.parent.transform.position = Vector3.Lerp (this.transform.parent.transform.position, newPos.transform.position, 1);
+		transform.parent.transform.rotation = newPos.transform.rotation;
 	
 	}
 
