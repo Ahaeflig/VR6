@@ -14,6 +14,9 @@ public class CanonController : MonoBehaviour {
 	GameObject shootPosition;
 
 	[SerializeField]
+	GameObject newPos;
+
+	[SerializeField]
 	float projSpeed = 1000;
 
 	private IEnumerator shootCoroutine;
@@ -30,8 +33,14 @@ public class CanonController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+	
+		transform.position = Vector3.Lerp (this.transform.position, newPos.transform.position, 1);
+		transform.rotation = newPos.transform.rotation;
+	
 	}
+
+
+
 
 	public void Fire() {
 

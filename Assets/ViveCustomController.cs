@@ -197,49 +197,54 @@ public class ViveCustomController : MonoBehaviour {
         }
 
 		// ********************** ROBOT ARMS' MOVEMENT ********************** \\
-
+	
 
 		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
+		} else if (controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			canonRight.GetComponentsInChildren<CanonController> ()[0].Fire ();
 		} else if (controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
+
 			Vector3 currentPlayerRightArm = currentPlayerRightHandLocalPosition - initPlayerRightShoulderLocalPosition;
 
 			Quaternion playerRightArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerRightArm, currentPlayerRightArm);
 			float playerRightArmRatioBasedOnInit = currentPlayerRightArm.magnitude / initPlayerRightArm.magnitude;
 
-			Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (playerRightArmRotationBasedOnInit * initRobotRightArm);
+			Vector3 angles = playerRightArmRotationBasedOnInit.eulerAngles;
+
+			Quaternion q_x = Quaternion.AngleAxis (angles.x, robot.transform.right);
+			Quaternion q_y = Quaternion.AngleAxis (angles.y, robot.transform.up);
+			Quaternion q_z = Quaternion.AngleAxis (angles.z,  robot.transform.forward);
+
+			Vector3 newRobotRightArm = playerRightArmRatioBasedOnInit * (q_y * q_z * q_x * initRobotRightArm);
 
 			robotRightHandTarget.transform.position = initRobotRightShoulderPosition + newRobotRightArm;
 		}
 
 		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
+		} else if (controllerLeft.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			canonLeft.GetComponentsInChildren<CanonController> ()[0].Fire ();
 		} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
+
 			Vector3 currentPlayerLeftArm = currentPlayerLeftHandLocalPosition - initPlayerLeftShoulderLocalPosition;
 
 			Quaternion playerLeftArmRotationBasedOnInit = Quaternion.FromToRotation (initPlayerLeftArm, currentPlayerLeftArm);
 			float playerLeftArmRatioBasedOnInit = currentPlayerLeftArm.magnitude / initPlayerLeftArm.magnitude;
 
-			Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (playerLeftArmRotationBasedOnInit * initRobotLeftArm);
+			Vector3 angles = playerLeftArmRotationBasedOnInit.eulerAngles;
 
+			Quaternion q_x = Quaternion.AngleAxis (angles.x, robot.transform.right);
+			Quaternion q_y = Quaternion.AngleAxis (angles.y, robot.transform.up);
+			Quaternion q_z = Quaternion.AngleAxis (angles.z,  robot.transform.forward);
+
+			Vector3 newRobotLeftArm = playerLeftArmRatioBasedOnInit * (q_y * q_z * q_x * initRobotLeftArm);
 			robotLeftHandTarget.transform.position = initRobotLeftShoulderPosition + newRobotLeftArm;
 		}
 
-
-
-		/*if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
-			canonRight.GetComponent<CanonController> ().GetPressDown (trackedControllerRight.transform.position );
-		}*/
-
-
 		/* FIRE WHEN RELEASING Trigger temporary*/
-		if (movementCalibrated && controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
-
-			canonRight.GetComponent<CanonController> ().Fire ();
-
-		}
 
 	}
 
