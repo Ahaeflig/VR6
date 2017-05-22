@@ -13,6 +13,10 @@ public class FinishController : MonoBehaviour {
 	public float currentDistance = 0f;
 	private int direction = 1;
 	public Vector3 initPosition; 
+
+	[SerializeField]
+	GameObject LevelText; 
+
 	// Use this for initialization
 	void Start () {
 		initPosition = transform.position;
@@ -42,7 +46,9 @@ public class FinishController : MonoBehaviour {
 	void OnCollisionEnter(Collision col) {
 		if (col.collider.CompareTag ("Player")) {
 			Debug.Log (col.gameObject.name);
-			print ("basd");
+
+			LevelText.GetComponent<TextMesh> ().text = "You won";
+			
 			NetworkServer.SendToAll (NetworkMessageType.Finish, new EmptyMessage ());
 		}	
 	}

@@ -16,6 +16,9 @@ public class CountDownTimer : MonoBehaviour {
 	GameObject startLine;
 
 
+	[SerializeField]
+	GameObject LevelText; 
+
 	private IEnumerator timeCoroutine;
 
 	private bool isGameFinished = false;
@@ -26,6 +29,7 @@ public class CountDownTimer : MonoBehaviour {
 
 		timeCoroutine = UpdateTimer();
 		StartCoroutine(timeCoroutine);
+		gameObject.GetComponent<TextMesh> ().text = timerInSeconds.ToString ();
 
 	}
 	
@@ -52,7 +56,10 @@ public class CountDownTimer : MonoBehaviour {
 				if (--timerInSeconds < 0) {
 					isGameFinished = true;
 
+					LevelText.GetComponent<TextMesh> ().text = "You lost";
+
 					NetworkServer.SendToAll (NetworkMessageType.GameOver, new EmptyMessage ());
+
 
 
 				} else {

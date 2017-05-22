@@ -6,9 +6,12 @@ public class TeleportPlane : MonoBehaviour {
 
 	Vector3 spawnPos;
 
+	Quaternion spawnRot;
+
 	// Use this for initialization
 	void Start () {
 		spawnPos = transform.GetChild(0).position;
+		spawnRot = transform.GetChild (0).rotation;
 		 
 	}
 	
@@ -32,6 +35,7 @@ public class TeleportPlane : MonoBehaviour {
 			//rigidbody.Sleep ();
 
 			rigidbody.position = spawnPos;
+			rigidbody.rotation = spawnRot;
 
 			rigidbody.isKinematic = false;
 

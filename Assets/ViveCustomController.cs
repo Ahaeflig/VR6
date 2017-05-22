@@ -74,6 +74,8 @@ public class ViveCustomController : MonoBehaviour {
     float angularSpeed = 0f;
 
 	bool movementCalibrated = false;
+	bool leftArmCalibrated = false;
+	bool rightArmCalibrated = false;
 
 	// Use this for initialization
 	void Start () {
@@ -201,9 +203,10 @@ public class ViveCustomController : MonoBehaviour {
 
 		if (movementCalibrated && controllerRight.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerRightArm = computeArm (trackedControllerRight.transform, ref initPlayerRightHandLocalPosition, ref initPlayerRightShoulderLocalPosition, Space.Self);
-		} else if (movementCalibrated && controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			rightArmCalibrated = true;
+		} else if (movementCalibrated && rightArmCalibrated && controllerRight.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
 			canonRight.GetComponentsInChildren<CanonController> ()[0].Fire ();
-		} else if (controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+		} else if (rightArmCalibrated && controllerRight.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerRightHandLocalPosition = trackedControllerRight.transform.localPosition;
 
 			Vector3 currentPlayerRightArm = currentPlayerRightHandLocalPosition - initPlayerRightShoulderLocalPosition;
@@ -225,9 +228,10 @@ public class ViveCustomController : MonoBehaviour {
 
 		if (movementCalibrated && controllerLeft.GetPressDown (SteamVR_Controller.ButtonMask.Trigger)) {
 			initPlayerLeftArm = computeArm (trackedControllerLeft.transform, ref initPlayerLeftHandLocalPosition, ref initPlayerLeftShoulderLocalPosition, Space.Self);
-		} else if (movementCalibrated && controllerLeft.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
+			leftArmCalibrated = true;
+		} else if (movementCalibrated && leftArmCalibrated && controllerLeft.GetPressUp (SteamVR_Controller.ButtonMask.Trigger)) {
 			canonLeft.GetComponentsInChildren<CanonController> ()[0].Fire ();
-		} else if (controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
+		} else if (leftArmCalibrated && controllerLeft.GetPress (SteamVR_Controller.ButtonMask.Trigger)) {
 			Vector3 currentPlayerLeftHandLocalPosition = trackedControllerLeft.transform.localPosition;
 
 			Vector3 currentPlayerLeftArm = currentPlayerLeftHandLocalPosition - initPlayerLeftShoulderLocalPosition;
