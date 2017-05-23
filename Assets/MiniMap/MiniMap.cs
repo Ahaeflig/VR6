@@ -1,4 +1,4 @@
-﻿ using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Networking;
 using UnityEngine;
@@ -78,7 +78,7 @@ public class MiniMap : MonoBehaviour {
 		} else if (msg.materialName == "Green (Instance)") {
 			blip.GetComponent<Renderer> ().material = greenMaterial;
 		}
-	}
+	}	
 
 	public void SetStartPlateforms(NetworkMessage netMsg) {
 		Debug.Log ("SetStartPlateforms");

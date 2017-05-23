@@ -8,10 +8,12 @@ public class ClientNetwork : MonoBehaviour {
 
 	public MiniMap miniMap;
 	public NetworkClient myClient;
+	private bool isConnected = false;
+	private string networkAddress = "";
 
 	public void SetupClient() {
 		myClient = new NetworkClient();
-		myClient.RegisterHandler(MsgType.Connect, OnConnected);
+		myClient.RegisterHandler (MsgType.Connect, OnConnected);
 		myClient.RegisterHandler (NetworkMessageType.Block, miniMap.SetBlocks);
 		myClient.RegisterHandler (NetworkMessageType.Plateform, miniMap.SetPlatforms);
 		myClient.RegisterHandler (NetworkMessageType.WallObstacles, miniMap.SetWallObstacles);
@@ -21,8 +23,7 @@ public class ClientNetwork : MonoBehaviour {
 		myClient.RegisterHandler (NetworkMessageType.GameOver, miniMap.HandleGameOverMessage);
 		myClient.RegisterHandler (NetworkMessageType.WallObstacleHasFinished, miniMap.HandleWallObstacleHasFinished);
 		myClient.RegisterHandler (NetworkMessageType.StartPlateform, miniMap.SetStartPlateforms);
-
-		myClient.Connect(NetworkInfo.serverIp, NetworkInfo.serverPort);
+		myClient.Connect(networkAddress, NetworkInfo.serverPort);
 	}
 		
 		
@@ -34,10 +35,21 @@ public class ClientNetwork : MonoBehaviour {
 	   	myClient.Send (NetworkMessageType.GetWallObstacles, new EmptyMessage());
 		myClient.Send (NetworkMessageType.GetRobotPosition, new EmptyMessage());
 	}
+
+
+	void OnGUI() {
+		if (!isConnected) {
+			networkAddress = GUI.TextField (new Rect (10, 10, 200, 20), networkAddress, 25);
+			if (GUI.Button (new Rect (10, 70, 200, 30), "Connect to Host")) {
+				isConnected = true;
+				SetupClient ();
+			}
+		}
+	}
 		
 	// Use this for initialization
 	void Start () {
-		SetupClient ();
+		//SetupClient ();
 	}
 	
 	// Update is called once per frame

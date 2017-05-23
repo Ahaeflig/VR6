@@ -21,9 +21,6 @@ public class NetworkMessageType {
 	public static short WallObstacleHasFinished = MsgType.Highest + 17;
 	public static short GetStartPlateforms = MsgType.Highest + 18;
 	public static short StartPlateform = MsgType.Highest + 19;
-
-
-
 }
 
 public class EmptyMessage : MessageBase {
